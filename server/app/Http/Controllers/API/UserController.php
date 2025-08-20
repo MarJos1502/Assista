@@ -15,7 +15,7 @@ class UserController extends Controller
 
         $search = $request->input('search');
 
-        $users = User::with(['gender','crisis'])
+        $users = User::with(['gender'])
             ->leftJoin('tbl_genders', 'tbl_users.gender_id', '=', 'tbl_genders.gender_id')
             ->where('tbl_users.is_deleted', false)
             ->orderBy('tbl_users.last_name', 'asc')

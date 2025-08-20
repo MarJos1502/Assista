@@ -13,6 +13,7 @@ import type { ApplicantColumns } from "../../../interfaces/ApplicantInterface";
 import FloatingLabelInput from "../../../components/Input/FloatingLabelInput";
 import Spinner from "../../../components/Spinner/Spinner";
 import ApplicantService from "../../../services/ApplicantService";
+import Modal from "../../../components/Modal";
 
 interface ApplicantListProps {
   onAddApplicant: () => void;
@@ -38,6 +39,10 @@ const ApplicantList: FC<ApplicantListProps> = ({
   const [debounceSearch, setDebounceSearch] = useState("");
 
   const tableRef = useRef<HTMLDivElement>(null);
+
+  // State for file viewer modal
+  const [isFileModalOpen, setIsFileModalOpen] = useState(false);
+  const [currentFileUrl, setCurrentFileUrl] = useState<string | null>(null);
 
   const handleLoadApplicants = async (
     page: number,
@@ -69,7 +74,8 @@ const ApplicantList: FC<ApplicantListProps> = ({
         setHasMore(false);
       }
     } catch (error) {
-      throw error;
+      console.error("Error loading applicants:", error); // Log the error for debugging
+      // throw error; // Re-throwing the error can break the component; better to handle gracefully
     } finally {
       setLoadingApplicants(false);
     }
@@ -80,7 +86,7 @@ const ApplicantList: FC<ApplicantListProps> = ({
 
     if (
       ref &&
-      ref.scrollTop + ref.clientHeight >= ref.scrollHeight - 10 &&
+      ref.scrollTop + ref.clientHeight >= ref.scrollHeight - 10 && // Check if near bottom
       hasMore &&
       !loadingApplicants
     ) {
@@ -125,6 +131,18 @@ const ApplicantList: FC<ApplicantListProps> = ({
     };
   }, [handleScroll]);
 
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "";
+    try {
+      const date = new Date(dateString);
+      // Example format: YYYY-MM-DD
+      return date.toISOString().split("T")[0];
+    } catch (e) {
+      console.error("Invalid date string:", dateString, e);
+      return dateString; // Return original if parsing fails
+    }
+  };
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebounceSearch(search);
@@ -140,6 +158,17 @@ const ApplicantList: FC<ApplicantListProps> = ({
 
     handleLoadApplicants(1, false, debounceSearch);
   }, [refreshKey, debounceSearch]);
+
+  // Functions for File Viewer Modal
+  const openFileModal = (url: string) => {
+    setCurrentFileUrl(url);
+    setIsFileModalOpen(true);
+  };
+
+  const closeFileModal = () => {
+    setIsFileModalOpen(false);
+    setCurrentFileUrl(null);
+  };
 
   return (
     <>
@@ -206,6 +235,12 @@ const ApplicantList: FC<ApplicantListProps> = ({
                 </TableCell>
                 <TableCell
                   isHeader
+                  className="px-5 py-3 font-medium text-start" // Added for File Column
+                >
+                  File
+                </TableCell>
+                <TableCell
+                  isHeader
                   className="px-5 py-3 font-medium text-center"
                 >
                   Action
@@ -226,29 +261,47 @@ const ApplicantList: FC<ApplicantListProps> = ({
                       {handleApplicantFullNameFormat(applicant)}
                     </TableCell>
                     <TableCell className="px-4 py-3 text-start">
+                      {/* Accessing nested gender property */}
                       {applicant.gender.gender}
                     </TableCell>
                     <TableCell className="px-4 py-3 text-start">
+                      {/* Accessing nested crisis property */}
                       {applicant.crisis.crisis}
                     </TableCell>
                     <TableCell className="px-4 py-3 text-start">
-                      {applicant.birth_date}
+                      {formatDate(applicant.birth_date)}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-start">
+                      {" "}
+                      {/* Cell for File */}
+                      {applicant.attached_file_url ? (
+                        <button
+                          onClick={() =>
+                            openFileModal(applicant.attached_file_url!)
+                          }
+                          className="text-blue-600 hover:text-blue-800 font-medium hover:underline"
+                        >
+                          View File
+                        </button>
+                      ) : (
+                        <span className="text-gray-500">No File</span>
+                      )}
                     </TableCell>
                     <TableCell className="px-4 py-3 text-center">
                       <div className="flex gap-3 justify-center">
                         <button
                           type="button"
                           className="text-green-600 hover:text-green-700 p-2 rounded-lg hover:bg-green-50 transition-colors"
-                          //onClick={() => onEditApplicant(applicant)}
-                          title="Edit Applicant"
+                          //onClick={() => onEditUser(user)}
+                          title="Edit User"
                         >
                           <BsPencilSquare className="w-5 h-5" />
                         </button>
                         <button
                           type="button"
                           className="text-red-600 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors"
-                          //onClick={() => onDeleteApplicant(applicant)}
-                          title="Delete Applicant"
+                          //onClick={() => onDeleteUser(user)}
+                          title="Delete User"
                         >
                           <BsTrash className="w-5 h-5" />
                         </button>
@@ -259,7 +312,7 @@ const ApplicantList: FC<ApplicantListProps> = ({
               ) : !loadingApplicants && applicants.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={6}
+                    colSpan={7} // Increased colspan due to new column
                     className="px-4 py-3 text-center font-medium"
                   >
                     No Records Found
@@ -268,14 +321,18 @@ const ApplicantList: FC<ApplicantListProps> = ({
               ) : null}
               {loadingApplicants && applicants.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} className="px-4 py-3 text-center">
+                  <TableCell colSpan={7} className="px-4 py-3 text-center">
+                    {" "}
+                    {/* Increased colspan */}
                     <Spinner size="md" />
                   </TableCell>
                 </TableRow>
               )}
               {loadingApplicants && applicants.length > 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} className="px-4 py-3 text-center">
+                  <TableCell colSpan={7} className="px-4 py-3 text-center">
+                    {" "}
+                    {/* Increased colspan */}
                     <Spinner size="md" />
                   </TableCell>
                 </TableRow>
@@ -284,6 +341,69 @@ const ApplicantList: FC<ApplicantListProps> = ({
           </Table>
         </div>
       </div>
+
+      {/* File Viewer Modal */}
+      <Modal isOpen={isFileModalOpen} onClose={closeFileModal} showCloseButton>
+        <div className="p-6">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            View Attached File
+          </h2>
+          {currentFileUrl ? (
+            currentFileUrl.endsWith(".pdf") ? (
+              <iframe
+                src={currentFileUrl}
+                width="100%"
+                height="500px"
+                style={{ border: "none" }}
+                title="Attached PDF File"
+              >
+                This browser does not support PDFs. Please download the PDF to
+                view it:{" "}
+                <a
+                  href={currentFileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
+                  Download PDF
+                </a>
+              </iframe>
+            ) : (
+              <img
+                src={currentFileUrl}
+                alt="Attached File"
+                className="max-w-full h-auto rounded-lg shadow-md"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).onerror = null;
+                  (e.target as HTMLImageElement).src =
+                    "https://placehold.co/400x300/e0e0e0/555555?text=File+Not+Found";
+                }}
+              />
+            )
+          ) : (
+            <p className="text-gray-600">No file to display.</p>
+          )}
+          <div className="mt-6 text-center">
+            <a
+              href={currentFileUrl || "#"}
+              target="_blank"
+              rel="noopener noreferrer"
+              download={
+                currentFileUrl ? currentFileUrl.split("/").pop() : undefined
+              }
+              className="inline-block bg-green-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-200 font-semibold mr-2"
+            >
+              Download File
+            </a>
+            <button
+              onClick={closeFileModal}
+              className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg shadow-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition duration-200 font-semibold"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 };

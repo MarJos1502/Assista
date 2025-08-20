@@ -34,6 +34,7 @@ return new class extends Migration
 
             // Crisis Details - Foreign Keys
             $table->unsignedBigInteger('crisis_id');
+            $table->date('incident_date'); 
             $table->unsignedBigInteger('situation_id'); // Foreign key for situation
 
             // Attached File

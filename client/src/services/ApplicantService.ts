@@ -14,11 +14,7 @@ const ApplicantService = {
 
   storeApplicant: async (data: any) => {
     try {
-      const response = await AxiosInstance.post("/applicant/storeApplicant", data, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const response = await AxiosInstance.post("/applicant/storeApplicant", data);
       return response;
     } catch (error) {
       throw error;

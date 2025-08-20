@@ -82,7 +82,8 @@ class ApplicantController extends Controller
             
             // Crisis Details
             'crisis' => ['required'], // Assuming this is crisis_id from frontend
-            'situation' => ['required', 'string', 'max:255'], // Assuming this is situation_id from frontend
+            'incident_date' => ['required', 'date'],
+            'situation' => ['required'], // Assuming this is situation_id from frontend
 
             // Attached File
             'add_applicant_file' => ['nullable', 'file', 'mimes:jpeg,pdf', 'max:5120'], // General attached file (e.g., medical cert)
@@ -109,6 +110,7 @@ class ApplicantController extends Controller
             'gender_id' => $validated['gender'],
             'crisis_id' => $validated['crisis'],
             'birth_date' => $validated['birth_date'],
+            'incident_date' => $validated['incident_date'],
             'age' => $age,
             'gmail' => $validated['gmail'],
             'contact_number' => $validated['contact_number'],
@@ -117,7 +119,7 @@ class ApplicantController extends Controller
             'subdivision' => $validated['subdivision'],
             'barangay' => $validated['barangay'],
             'city' => $validated['city'],
-            'situation' => $validated['situation'],
+            'situation_id' => $validated['situation'],
             'is_deleted' => false, // Ensure default is_deleted status
         ]);
 
@@ -148,6 +150,7 @@ class ApplicantController extends Controller
             
             // Crisis Details
             'crisis' => ['required'],
+            'incident_date' => ['required', 'date'],
             'situation' => ['required', 'string', 'max:255'],
 
             // Attached File
@@ -186,6 +189,7 @@ class ApplicantController extends Controller
             'gender_id' => $validated['gender'],
             'crisis_id' => $validated['crisis'],
             'birth_date' => $validated['birth_date'],
+            'incident_date' => $validated['incident_date'],
             'age' => $age,
             'gmail' => $validated['gmail'],
             'contact_number' => $validated['contact_number'],

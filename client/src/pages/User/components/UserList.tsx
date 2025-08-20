@@ -190,12 +190,6 @@ const UserList: FC<UserListProps> = ({
                   isHeader
                   className="px-5 py-3 font-medium text-start"
                 >
-                  crisis
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-start"
-                >
                   Birth Date
                 </TableCell>
                 <TableCell
@@ -243,9 +237,6 @@ const UserList: FC<UserListProps> = ({
                       {user.gender.gender}
                     </TableCell>
                     <TableCell className="px-4 py-3  text-start">
-                      {user.crisis.crisis}
-                    </TableCell>
-                    <TableCell className="px-4 py-3  text-start">
                       {user.birth_date}
                     </TableCell>
                     <TableCell className="px-4 py-3  text-start">
@@ -276,7 +267,7 @@ const UserList: FC<UserListProps> = ({
               ) : !loadingUsers && users.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={8}
+                    colSpan={7}
                     className="px-4 py-3 text-center font-medium"
                   >
                     No Records Found
@@ -285,14 +276,14 @@ const UserList: FC<UserListProps> = ({
               ) : null}
               {loadingUsers && users.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={8} className="px-4 py-3 text-center">
+                  <TableCell colSpan={7} className="px-4 py-3 text-center">
                     <Spinner size="md" />
                   </TableCell>
                 </TableRow>
               )}
               {loadingUsers && users.length > 0 && (
                 <TableRow>
-                  <TableCell colSpan={8} className="px-4 py-3 text-center">
+                  <TableCell colSpan={7} className="px-4 py-3 text-center">
                     <Spinner size="md" />
                   </TableCell>
                 </TableRow>

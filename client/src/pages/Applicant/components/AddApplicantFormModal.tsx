@@ -7,6 +7,9 @@ import GenderService from "../../../services/GenderService";
 import crisisService from "../../../services/CrisisService";
 import SituationService from "../../../services/SituationService";
 import ApplicantService from "../../../services/ApplicantService";
+import CloseButton from "../../../components/Button/CloseButton";
+import SubmitButton from "../../../components/Button/SubmitButton";
+import type { ApplicantFieldErrors } from "../../../interfaces/ApplicantInterface";
 
 // --- START: Self-contained Components and Hooks for compilation ---
 
@@ -134,7 +137,7 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
   const [middleName, setMiddleName] = useState("");
   const [suffixName, setSuffixName] = useState("");
   const [genderId, setGenderId] = useState("");
-  const [genders, setGenders] = useState<GenderColumns[]>([]); // Use GenderColumns type
+  const [genders, setGenders] = useState<GenderColumns[]>([]);
   const [loadingGenders, setLoadingGenders] = useState(false);
   const [birthDate, setBirthDate] = useState("");
 
@@ -149,11 +152,11 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
 
   // State for Crisis Information
   const [crisisId, setCrisisId] = useState("");
-  const [crisiss, setCrisiss] = useState<CrisisColumns[]>([]); // Use CrisisColumns type
+  const [crisiss, setCrisiss] = useState<CrisisColumns[]>([]);
   const [loadingCrisiss, setLoadingCrisiss] = useState(false);
   const [incidentDate, setIncidentDate] = useState("");
   const [situationId, setSituationId] = useState("");
-  const [situations, setSituations] = useState<SituationColumns[]>([]); // Use SituationColumns type
+  const [situations, setSituations] = useState<SituationColumns[]>([]);
   const [loadingSituations, setLoadingSituations] = useState(false);
 
   // State for Attached File
@@ -163,8 +166,8 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
   const [consentGiven, setConsentGiven] = useState(false);
 
   // General form submission loading and errors
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formErrors, setFormErrors] = useState<FormError>({});
+  const [loadingStore, setLoadingStore] = useState(false);
+  const [errors, setErrors] = useState<ApplicantFieldErrors>({});
   const [submissionMessage, setSubmissionMessage] = useState<string | null>(
     null
   );
@@ -219,54 +222,35 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
   };
 
   useEffect(() => {
-    if (!isOpen) {
-      // Reset form when modal closes
-      setLastName("");
-      setFirstName("");
-      setMiddleName("");
-      setSuffixName("");
-      setGenderId("");
-      setBirthDate("");
-      setContactNumber("");
-      setGmail("");
-      setHouseNo("");
-      setStreet("");
-      setSubdivision("");
-      setBarangay("");
-      setCity("");
-      setCrisisId("");
-      setIncidentDate("");
-      setSituationId("");
-      setAttachedFile(null);
-      setConsentGiven(false);
-      setFormErrors({});
-      setSubmissionMessage(null);
-      return;
+    if (isOpen) {
+      handleLoadGenders();
+      handleLoadCrisiss();
+      handleLoadSituations();
     }
-
-    // Call individual load functions when modal opens
-    handleLoadGenders();
-    handleLoadCrisiss();
-    handleLoadSituations();
   }, [isOpen]);
 
   // --- Form Submission Handler ---
-  const handleSubmit = async (e: FormEvent) => {
+  const handleStoreApplicant = async (e: FormEvent) => {
     e.preventDefault();
-    setFormErrors({});
+
+    setLoadingStore(true);
+    setErrors({});
     setSubmissionMessage(null);
 
     if (!consentGiven) {
       setSubmissionMessage(
         "Please agree to the privacy consent before submitting."
       );
+      setLoadingStore(false);
       return;
     }
 
-    setIsSubmitting(true);
-
     try {
       const formData = new FormData();
+
+      if (attachedFile) {
+        formData.append("add_applicant_file", attachedFile);
+      }
 
       // Personal Details
       formData.append("first_name", firstName);
@@ -274,7 +258,7 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
       formData.append("last_name", lastName);
       formData.append("suffix_name", suffixName || "");
       formData.append("birth_date", birthDate);
-      formData.append("gender_id", genderId);
+      formData.append("gender", genderId);
 
       // Contact Information
       formData.append("contact_number", contactNumber);
@@ -286,30 +270,33 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
       formData.append("city", city);
 
       // Crisis Details
-      formData.append("crisis_id", crisisId);
+      formData.append("crisis", crisisId);
       formData.append("incident_date", incidentDate);
-      formData.append("situation_id", situationId);
+      formData.append("situation", situationId);
 
-      // Attached File
-      if (attachedFile) {
-        formData.append("add_applicant_file", attachedFile);
-      }
+      const response = await ApplicantService.storeApplicant(formData);
 
-      // Calculate age for backend
-      if (birthDate) {
-        const today = new Date();
-        const birthDateObj = new Date(birthDate);
-        let age = today.getFullYear() - birthDateObj.getFullYear();
-        const m = today.getMonth() - birthDateObj.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < birthDateObj.getDate())) {
-          age--;
-        }
-        formData.append("age", String(age));
-      }
+      if (response.status === 200 || response.status === 201) {
+        setLastName("");
+        setFirstName("");
+        setMiddleName("");
+        setSuffixName("");
+        setGenderId("");
+        setBirthDate("");
+        setContactNumber("");
+        setGmail("");
+        setHouseNo("");
+        setStreet("");
+        setSubdivision("");
+        setBarangay("");
+        setCity("");
+        setCrisisId("");
+        setIncidentDate("");
+        setSituationId("");
+        setAttachedFile(null);
+        setConsentGiven(false);
+        setErrors({});
 
-      const response = await ApplicantService.submitApplicantForm(formData);
-
-      if (response.status === 200) {
         onApplicantAdded(response.data.message);
         refreshKey();
         onClose();
@@ -320,23 +307,24 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
       }
     } catch (error: any) {
       if (error.response && error.response.status === 422) {
-        setFormErrors(error.response.data.errors);
+        setErrors(error.response.data.errors);
         setSubmissionMessage("Please correct the highlighted errors.");
       } else {
         setSubmissionMessage("A network error occurred. Please try again.");
       }
     } finally {
-      setIsSubmitting(false);
+      setLoadingStore(false);
     }
   };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} showCloseButton>
-      <form onSubmit={handleSubmit} className="p-6">
+      <form onSubmit={handleStoreApplicant} className="p-6">
+        {" "}
+        {/* Updated onSubmit */}
         <h1 className="text-3xl font-bold text-gray-800 mb-6 border-b pb-4">
           Crisis Situation Online Registration
         </h1>
-
         {submissionMessage && (
           <div
             className={`p-4 rounded-lg text-white font-medium mb-4 ${
@@ -348,7 +336,6 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
             {submissionMessage}
           </div>
         )}
-
         {/* Section: Personal Details */}
         <div className="border border-gray-200 rounded-lg p-6 bg-gray-50 shadow-sm transition-all duration-300 hover:shadow-md mb-8">
           <h2 className="text-2xl font-bold text-blue-800 mb-6 border-b pb-3 border-blue-100">
@@ -362,7 +349,7 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
               required
-              errors={formErrors.last_name}
+              errors={errors.last_name}
             />
             <FloatingLabelInput
               label="First Name"
@@ -371,7 +358,7 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               required
-              errors={formErrors.first_name}
+              errors={errors.first_name}
             />
             <FloatingLabelInput
               label="Middle Name"
@@ -379,15 +366,15 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
               name="middle_name"
               value={middleName}
               onChange={(e) => setMiddleName(e.target.value)}
-              errors={formErrors.middle_name}
+              errors={errors.middle_name}
             />
             <FloatingLabelInput
-              label="Suffix Name (e.g., Jr., Sr.)"
+              label="Suffix Name"
               type="text"
               name="suffix_name"
               value={suffixName}
               onChange={(e) => setSuffixName(e.target.value)}
-              errors={formErrors.suffix_name}
+              errors={errors.suffix_name}
             />
             <FloatingLabelInput
               label="Date of Birth"
@@ -396,7 +383,7 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
               value={birthDate}
               onChange={(e) => setBirthDate(e.target.value)}
               required
-              errors={formErrors.birth_date}
+              errors={errors.birth_date}
             />
             <FloatingLabelSelect
               label="Gender"
@@ -404,7 +391,7 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
               value={genderId}
               onChange={(e) => setGenderId(e.target.value)}
               required
-              errors={formErrors.gender_id}
+              errors={errors.gender}
             >
               {loadingGenders ? (
                 <option value="">Loading Genders...</option>
@@ -424,7 +411,6 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
             </FloatingLabelSelect>
           </div>
         </div>
-
         {/* Section: Contact Information */}
         <div className="border border-gray-200 rounded-lg p-6 bg-gray-50 shadow-sm transition-all duration-300 hover:shadow-md mb-8">
           <h2 className="text-2xl font-bold text-blue-800 mb-6 border-b pb-3 border-blue-100">
@@ -438,7 +424,7 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
               value={contactNumber}
               onChange={(e) => setContactNumber(e.target.value)}
               required
-              errors={formErrors.contact_number}
+              errors={errors.contact_number}
             />
             <FloatingLabelInput
               label="Gmail"
@@ -447,7 +433,7 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
               value={gmail}
               onChange={(e) => setGmail(e.target.value)}
               required
-              errors={formErrors.gmail}
+              errors={errors.gmail}
             />
             <FloatingLabelInput
               label="House No. / Lot / Block"
@@ -456,7 +442,7 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
               value={houseNo}
               onChange={(e) => setHouseNo(e.target.value)}
               required
-              errors={formErrors.house_no}
+              errors={errors.house_no}
             />
             <FloatingLabelInput
               label="Street"
@@ -465,7 +451,7 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
               value={street}
               onChange={(e) => setStreet(e.target.value)}
               required
-              errors={formErrors.street}
+              errors={errors.street}
             />
             <FloatingLabelInput
               label="Subdivision"
@@ -473,7 +459,7 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
               name="subdivision"
               value={subdivision}
               onChange={(e) => setSubdivision(e.target.value)}
-              errors={formErrors.subdivision}
+              errors={errors.subdivision}
             />
             <FloatingLabelInput
               label="Barangay"
@@ -482,7 +468,7 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
               value={barangay}
               onChange={(e) => setBarangay(e.target.value)}
               required
-              errors={formErrors.barangay}
+              errors={errors.barangay}
             />
             <FloatingLabelInput
               label="City / Municipality"
@@ -491,11 +477,10 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
               value={city}
               onChange={(e) => setCity(e.target.value)}
               required
-              errors={formErrors.city}
+              errors={errors.city}
             />
           </div>
         </div>
-
         {/* Section: Crisis Information */}
         <div className="border border-gray-200 rounded-lg p-6 bg-gray-50 shadow-sm transition-all duration-300 hover:shadow-md mb-8">
           <h2 className="text-2xl font-bold text-blue-800 mb-6 border-b pb-3 border-blue-100">
@@ -508,7 +493,7 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
               value={crisisId}
               onChange={(e) => setCrisisId(e.target.value)}
               required
-              errors={formErrors.crisis_id}
+              errors={errors.crisis}
             >
               {loadingCrisiss ? (
                 <option value="">Loading Crisis Types...</option>
@@ -533,7 +518,7 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
               value={incidentDate}
               onChange={(e) => setIncidentDate(e.target.value)}
               required
-              errors={formErrors.incident_date}
+              errors={errors.incident_date}
             />
           </div>
 
@@ -555,25 +540,24 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
                     <input
                       type="radio"
                       name="situation_id"
-                      value={situationOpt.situation_id}
-                      checked={situationId === situationOpt.situation_id}
+                      value={String(situationOpt.situation_id)}
+                      checked={
+                        situationId === String(situationOpt.situation_id)
+                      }
                       onChange={(e) => setSituationId(e.target.value)}
                       className="form-radio h-5 w-5 text-blue-600 border-gray-300 rounded-full focus:ring-blue-500 shadow-sm"
                       required={true}
                     />
-                    <span className="ml-2">{situationOpt.situation_name}</span>
+                    <span className="ml-2">{situationOpt.situation}</span>
                   </label>
                 ))}
               </div>
             )}
-            {formErrors.situation_id && (
-              <p className="mt-2 text-sm text-red-600">
-                {formErrors.situation_id[0]}
-              </p>
+            {errors.situation && (
+              <p className="mt-2 text-sm text-red-600">{errors.situation[0]}</p>
             )}
           </div>
         </div>
-
         {/* Section: Attached File */}
         <div className="border border-gray-200 rounded-lg p-6 bg-gray-50 shadow-sm transition-all duration-300 hover:shadow-md mb-8">
           <h2 className="text-2xl font-bold text-blue-800 mb-6 border-b pb-3 border-blue-100">
@@ -593,16 +577,15 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
               <span className="text-gray-700">{attachedFile.name}</span>
             )}
           </div>
-          {formErrors.add_applicant_file && (
+          {errors.add_applicant_file && (
             <p className="mt-2 text-sm text-red-600">
-              {formErrors.add_applicant_file[0]}
+              {errors.add_applicant_file[0]}
             </p>
           )}
           <p className="text-sm text-gray-600">
             NOTE: Please upload files in JPEG or PDF format only
           </p>
         </div>
-
         {/* Section: Declaration and Consent */}
         <div className="border border-gray-200 rounded-lg p-6 bg-gray-50 shadow-sm transition-all duration-300 hover:shadow-md mb-8">
           <h2 className="text-2xl font-bold text-blue-800 mb-6 border-b pb-3 border-blue-100">
@@ -630,20 +613,16 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
             </label>
           </div>
         </div>
-
         {/* Submit Button */}
-        <div className="flex justify-center mt-8">
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className={`px-8 py-4 bg-green-600 text-white font-bold text-lg rounded-full shadow-lg transform transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-green-400 focus:ring-offset-2 ${
-              isSubmitting
-                ? "opacity-70 cursor-not-allowed"
-                : "hover:bg-green-700 hover:scale-105"
-            }`}
-          >
-            {isSubmitting ? "Submitting..." : "Submit Registration"}
-          </button>
+        <div className="flex justify-center mt-8 gap-4">
+          {" "}
+          {/* Added gap for spacing between buttons */}
+          {!loadingStore && <CloseButton label="Close" onClose={onClose} />}
+          <SubmitButton
+            label="Submit Registration"
+            loading={loadingStore}
+            loadingLabel="Submitting..."
+          />
         </div>
       </form>
     </Modal>

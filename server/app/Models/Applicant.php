@@ -5,12 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Notifications\Notifiable;
 
 class Applicant extends Model
 {
-    use HasFactory;
+    use HasFactory, Notifiable;
 
-    // Define the table associated with the model.
+    // Define the tab le associated with the model.
     // This model will interact with the 'tbl_applicants' table in your database.
     protected $table = 'tbl_applicants';
 
@@ -46,8 +47,9 @@ class Applicant extends Model
         'city',
 
         // Crisis Details
-        'crisis_id',     // Foreign key to tbl_crisiss
-        'situation',     // Current situation description
+        'crisis_id',
+        'incident_date',     // Foreign key to tbl_crisiss
+        'situation_id',     // Current situation description
 
         // Attached File
         'attached_file', // Stores the filename of the uploaded file
