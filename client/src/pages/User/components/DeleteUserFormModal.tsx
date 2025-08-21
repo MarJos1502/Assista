@@ -26,7 +26,6 @@ const DeleteUserFormModal: FC<DeleteUserFormModalProps> = ({
   const [lastName, setLastName] = useState("");
   const [suffixName, setSuffixName] = useState("");
   const [gender, setGender] = useState("");
-  const [crisis, setcrisis] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [gmail, setGmail] = useState("");
 
@@ -66,7 +65,6 @@ const DeleteUserFormModal: FC<DeleteUserFormModalProps> = ({
         setLastName(user.last_name);
         setSuffixName(user.suffix_name ?? "");
         setGender(user.gender.gender);
-        setcrisis(user.crisis.crisis);
         setBirthDate(user.birth_date);
         setGmail(user.gmail);
       } else {
@@ -132,14 +130,6 @@ const DeleteUserFormModal: FC<DeleteUserFormModalProps> = ({
                   Gender
                 </label>
                 <p className="text-gray-500 font-medium">{gender}</p>
-              </div>
-            </div>
-            <div className="col-span-2 md:col-span-1">
-              <div className="mb-4">
-                <label htmlFor="crisis" className="font-medium text-black mb-2">
-                  crisis
-                </label>
-                <p className="text-gray-500 font-medium">{crisis}</p>
               </div>
             </div>
             <div className="col-span-2 md:col-span-1">

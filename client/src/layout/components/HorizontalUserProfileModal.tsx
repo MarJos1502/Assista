@@ -1,35 +1,26 @@
 import { useEffect, useState, type FC } from "react";
-import CloseButton from "../../../components/Button/CloseButton";
-import SubmitButton from "../../../components/Button/SubmitButton";
-import FloatingLabelInput from "../../../components/Input/FloatingLabelInput";
-import Modal from "../../../components/Modal";
-import FloatingLabelSelect from "../../../components/Select/FloatingLabelSelect";
-import GenderService from "../../../services/GenderService";
-import UserService from "../../../services/UserService";
-import { useAuth } from "../../../contexts/AuthContext";
-import type {
-  UserColumns,
-  UserFieldErrors,
-} from "../../../interfaces/UserInterface";
-import type { GenderColumns } from "../../../interfaces/GenderInterface";
-import UploadInput from "../../../components/Input/UploadInput";
+import Modal from "../../components/Modal";
+import { useAuth } from "../../contexts/AuthContext";
+import CloseButton from "../../components/Button/CloseButton";
+import SubmitButton from "../../components/Button/SubmitButton";
+import FloatingLabelInput from "../../components/Input/FloatingLabelInput";
+import FloatingLabelSelect from "../../components/Select/FloatingLabelSelect";
+import UploadInput from "../../components/Input/UploadInput";
+import GenderService from "../../services/GenderService";
+import UserService from "../../services/UserService";
+import type { GenderColumns } from "../../interfaces/GenderInterface";
+import type { UserFieldErrors } from "../../interfaces/UserInterface";
 
-interface EditUserFormModalProps {
-  user: UserColumns | null;
+interface HorizontalUserProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onUserUpdated: (message: string) => void;
-  refreshKey: () => void;
 }
 
-const EditUserFormModal: FC<EditUserFormModalProps> = ({
-  user,
+const HorizontalUserProfileModal: FC<HorizontalUserProfileModalProps> = ({
   isOpen,
   onClose,
-  onUserUpdated,
-  refreshKey,
 }) => {
-  const { updateUser } = useAuth();
+  const { user, updateUser } = useAuth();
   const [loadingGenders, setLoadingGenders] = useState(false);
   const [genders, setGenders] = useState<GenderColumns[]>([]);
 
@@ -51,7 +42,6 @@ const EditUserFormModal: FC<EditUserFormModalProps> = ({
   const handleUpdateUser = async (e: React.FormEvent) => {
     try {
       e.preventDefault();
-
       setLoadingUpdate(true);
 
       const formData = new FormData();
@@ -71,46 +61,28 @@ const EditUserFormModal: FC<EditUserFormModalProps> = ({
       formData.append("birth_date", birthDate);
       formData.append("gmail", gmail);
 
-      const res = await UserService.updateUser(user?.user_id!, formData);
+      const res = await UserService.updateUser(user?.user.user_id!, formData);
 
       if (res.status === 200) {
         setExistingProfilePicture(
           res.data.user.profile_picture ? res.data.user.profile_picture : null
         );
-
         setEditUserProfilePicture(null);
-        setFirstName(res.data.user.first_name);
-        setMiddleName(res.data.user.middle_name ?? "");
-        setLastName(res.data.user.last_name);
-        setSuffixName(res.data.user.suffix_name ?? "");
-        setGender(res.data.user.gender_id);
-        setBirthDate(res.data.user.birth_date);
-        setGmail(res.data.user.gmail);
         setErrors({});
 
-        // Update the user state in AuthContext to reflect the changes immediately
         updateUser({
           user: res.data.user,
           token: localStorage.getItem("token") || "",
         });
 
-        onUserUpdated(res.data.message);
-        handleLoadGenders();
-        refreshKey();
-      } else {
-        console.error(
-          "Unexpected status error during updating user:",
-          res.status
-        );
+        onClose();
       }
     } catch (error: any) {
       if (error.response && error.response.status === 422) {
         setErrors(error.response.data.errors);
-      } else {
-        console.error("Unexpected status error during updating user:", error);
       }
     } finally {
-      setLoadingUpdate(false); // <-- Always stop loading
+      setLoadingUpdate(false);
     }
   };
 
@@ -120,17 +92,9 @@ const EditUserFormModal: FC<EditUserFormModalProps> = ({
       const res = await GenderService.loadGenders();
       if (res.status === 200) {
         setGenders(res.data.genders);
-      } else {
-        console.error(
-          "Unexpected error occurred during loading genders: ",
-          res.status
-        );
       }
     } catch (error) {
-      console.error(
-        "Unexpected server error occurred during loading genders: ",
-        error
-      );
+      console.error("Error loading genders:", error);
     } finally {
       setLoadingGenders(false);
     }
@@ -143,50 +107,59 @@ const EditUserFormModal: FC<EditUserFormModalProps> = ({
   }, [isOpen]);
 
   useEffect(() => {
-    if (isOpen) {
-      if (user) {
-        setEditUserProfilePicture(null);
-
-        setExistingProfilePicture(
-          user.profile_picture ? user.profile_picture : null
-        );
-        setFirstName(user.first_name);
-        setMiddleName(user.middle_name ?? "");
-        setLastName(user.last_name);
-        setSuffixName(user.suffix_name ?? "");
-        setGender(user.gender.gender_id.toString());
-        setBirthDate(user.birth_date);
-        setGmail(user.gmail);
-      } else {
-        console.error(
-          "Unexpected user error occured  during getting user details: ",
-          user
-        );
-      }
+    if (isOpen && user) {
+      setEditUserProfilePicture(null);
+      setExistingProfilePicture(
+        user.user.profile_picture ? user.user.profile_picture : null
+      );
+      setFirstName(user.user.first_name);
+      setMiddleName(user.user.middle_name ?? "");
+      setLastName(user.user.last_name);
+      setSuffixName(user.user.suffix_name ?? "");
+      setGender(user.user.gender.gender_id.toString());
+      setBirthDate(user.user.birth_date);
+      setGmail(user.user.gmail);
     }
   }, [isOpen, user]);
 
+  if (!user) return null;
+
   return (
-    <>
-      <Modal isOpen={isOpen} onClose={onClose} showCloseButton>
-        <form onSubmit={handleUpdateUser}>
-          <h1 className="text-2xl border-b border-gray-100 p-4 font-semibold mb-4">
-            Edit User Form
-          </h1>
-          <div className="mb-4">
-            <UploadInput
-              label="Profile Picture"
-              name="edit_user_profile_picture"
-              value={editUserProfilePicture}
-              onChange={setEditUserProfilePicture}
-              onRemoveExistingImageUrl={() => setExistingProfilePicture(null)}
-              existingImageUrl={existingProfilePicture}
-              errors={errors.edit_user_profile_picture}
-            />
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      showCloseButton
+      className="max-w-4xl"
+    >
+      <form onSubmit={handleUpdateUser}>
+        <h1 className="text-2xl font-bold text-gray-800 mb-6 border-b pb-4 text-center">
+          👤 User Profile
+        </h1>
+
+        {/* Horizontal Layout Container - Centered */}
+        <div className="flex flex-col lg:flex-row gap-8 items-center justify-center">
+          {/* Left Side - Profile Picture */}
+          <div className="lg:w-2/5 flex justify-center">
+            <div className="mb-6 w-full max-w-xs">
+              <UploadInput
+                label="Profile Picture"
+                name="edit_user_profile_picture"
+                value={editUserProfilePicture}
+                onChange={setEditUserProfilePicture}
+                onRemoveExistingImageUrl={() => setExistingProfilePicture(null)}
+                existingImageUrl={existingProfilePicture}
+                errors={errors.edit_user_profile_picture}
+              />
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-4 border-b border-gray-100 mb-4">
-            <div className="col-span-2 md:col-span-1">
-              <div className="mb-4">
+
+          {/* Right Side - Personal Information */}
+          <div className="lg:w-3/5">
+            <div className="mb-6">
+              <h3 className="text-lg text-center font-semibold text-gray-800 mb-6">
+                📋 Personal Information
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FloatingLabelInput
                   label="First Name"
                   type="text"
@@ -194,11 +167,8 @@ const EditUserFormModal: FC<EditUserFormModalProps> = ({
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   required
-                  autoFocus
                   errors={errors.first_name}
                 />
-              </div>
-              <div className="mb-4">
                 <FloatingLabelInput
                   label="Middle Name"
                   type="text"
@@ -207,8 +177,6 @@ const EditUserFormModal: FC<EditUserFormModalProps> = ({
                   onChange={(e) => setMiddleName(e.target.value)}
                   errors={errors.middle_name}
                 />
-              </div>
-              <div className="mb-4">
                 <FloatingLabelInput
                   label="Last Name"
                   type="text"
@@ -218,8 +186,6 @@ const EditUserFormModal: FC<EditUserFormModalProps> = ({
                   required
                   errors={errors.last_name}
                 />
-              </div>
-              <div className="mb-4">
                 <FloatingLabelInput
                   label="Suffix Name"
                   type="text"
@@ -228,8 +194,6 @@ const EditUserFormModal: FC<EditUserFormModalProps> = ({
                   onChange={(e) => setSuffixName(e.target.value)}
                   errors={errors.suffix_name}
                 />
-              </div>
-              <div className="mb-4">
                 <FloatingLabelSelect
                   label="Gender"
                   name="gender"
@@ -243,20 +207,19 @@ const EditUserFormModal: FC<EditUserFormModalProps> = ({
                   ) : (
                     <>
                       <option value="">Select Gender</option>
-                      {genders.map((gender, index) => (
-                        <option value={gender.gender_id} key={index}>
-                          {gender.gender}
+                      {genders.map((genderOpt) => (
+                        <option
+                          key={genderOpt.gender_id}
+                          value={genderOpt.gender_id}
+                        >
+                          {genderOpt.gender}
                         </option>
                       ))}
                     </>
                   )}
                 </FloatingLabelSelect>
-              </div>
-            </div>
-            <div className="col-span-2 md:col-span-1">
-              <div className="mb-4">
                 <FloatingLabelInput
-                  label="Birth Date"
+                  label="Date of Birth"
                   type="date"
                   name="birth_date"
                   value={birthDate}
@@ -264,10 +227,8 @@ const EditUserFormModal: FC<EditUserFormModalProps> = ({
                   required
                   errors={errors.birth_date}
                 />
-              </div>
-              <div className="mb-4">
                 <FloatingLabelInput
-                  label="Gmail"
+                  label="Email Address"
                   type="email"
                   name="gmail"
                   value={gmail}
@@ -278,18 +239,20 @@ const EditUserFormModal: FC<EditUserFormModalProps> = ({
               </div>
             </div>
           </div>
-          <div className="flex justify-end gap-2">
-            {!loadingUpdate && <CloseButton label="Close" onClose={onClose} />}
-            <SubmitButton
-              label="Update User"
-              loading={loadingUpdate}
-              loadingLabel="Updating User..."
-            />
-          </div>
-        </form>
-      </Modal>
-    </>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-center mt-6 gap-4 border-t pt-6">
+          {!loadingUpdate && <CloseButton label="Close" onClose={onClose} />}
+          <SubmitButton
+            label="Save Profile"
+            loading={loadingUpdate}
+            loadingLabel="Updating..."
+          />
+        </div>
+      </form>
+    </Modal>
   );
 };
 
-export default EditUserFormModal;
+export default HorizontalUserProfileModal;

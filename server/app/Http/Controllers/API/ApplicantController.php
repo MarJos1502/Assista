@@ -86,7 +86,7 @@ class ApplicantController extends Controller
             'situation' => ['required'], // Assuming this is situation_id from frontend
 
             // Attached File
-            'add_applicant_file' => ['nullable', 'file', 'mimes:jpeg,pdf', 'max:5120'], // General attached file (e.g., medical cert)
+            'add_applicant_file' => ['required', 'file', 'mimes:jpeg,pdf', 'max:5120'], // Changed to 'required'
         ]);
 
         $attachedFileFilenameToStore = null;
@@ -154,28 +154,30 @@ class ApplicantController extends Controller
             'situation' => ['required', 'string', 'max:255'],
 
             // Attached File
-            'edit_applicant_file' => ['nullable', 'file', 'mimes:jpeg,pdf', 'max:5120'],
-            'remove_attached_file' => ['nullable', 'boolean'],
+            'attached_file' => ['nullable', 'file', 'mimes:jpeg,pdf', 'max:5120'],
+            'remove_attached_file' => ['nullable', 'boolean'], // Assuming this comes as '0' or '1' string from FormData
         ]);
         
         // Handle general attached file removal/update
-        if ($request->has('remove_attached_file') && $request->remove_attached_file == '1') {
+        if (isset($validated['remove_attached_file']) && $validated['remove_attached_file'] == '1') {
+            // Remove existing file if checkbox is ticked and a file exists
             if ($applicant->attached_file && Storage::exists('public/img/applicant/files/' . $applicant->attached_file)) {
                 Storage::delete('public/img/applicant/files/' . $applicant->attached_file);
             }
-            $validated['attached_file'] = null; // Set to null after removal
-        } elseif ($request->hasFile('edit_applicant_file')) {
+            $attachedFileFilenameToStore = ''; // Set to empty string after removal
+        } elseif ($request->hasFile('attached_file')) { // Check for new file upload
+            // Delete old file if a new one is being uploaded
             if ($applicant->attached_file && Storage::exists('public/img/applicant/files/' . $applicant->attached_file)) {
                 Storage::delete('public/img/applicant/files/' . $applicant->attached_file);
             }
-            $filenameWithExtension = $request->file('edit_applicant_file');
+            $filenameWithExtension = $request->file('attached_file');
             $filename = pathinfo($filenameWithExtension->getClientOriginalName(), PATHINFO_FILENAME);
             $extension = $filenameWithExtension->getClientOriginalExtension();
             $filenameToStore = sha1('file_' . $filename . time()) . '.' . $extension;
             $filenameWithExtension->storeAs('public/img/applicant/files', $filenameToStore);
-            $validated['attached_file'] = $filenameToStore; // Store new filename
+            $attachedFileFilenameToStore = $filenameToStore; // Store new filename
         } else {
-            $validated['attached_file'] = $applicant->attached_file; // Retain existing if not updated/removed
+            $attachedFileFilenameToStore = $applicant->attached_file; // Retain existing if no new file and not removed
         }
 
         $age = date_diff(date_create($validated['birth_date']), date_create('now'))->y;
@@ -223,6 +225,45 @@ class ApplicantController extends Controller
 
         return response()->json([
             'message' => 'Applicant Successfully Deleted.'
+        ], 200);
+    }
+
+    public function getApplicant(Applicant $applicant)
+    {
+        // Load relationships
+        $applicant->load(['gender', 'crisis', 'situation']);
+        
+        // Transform for frontend compatibility
+        $applicantData = [
+            'applicant_id' => $applicant->applicant_id,
+            'first_name' => $applicant->first_name,
+            'middle_name' => $applicant->middle_name,
+            'last_name' => $applicant->last_name,
+            'suffix_name' => $applicant->suffix_name,
+            'birth_date' => $applicant->birth_date,
+            'gender' => $applicant->gender_id,
+            'gender_name' => $applicant->gender->gender ?? null,
+            'contact_number' => $applicant->contact_number,
+            'gmail' => $applicant->gmail,
+            'house_no' => $applicant->house_no,
+            'street' => $applicant->street,
+            'subdivision' => $applicant->subdivision,
+            'barangay' => $applicant->barangay,
+            'city' => $applicant->city,
+            'crisis' => $applicant->crisis_id,
+            'crisis_name' => $applicant->crisis->crisis ?? null,
+            'incident_date' => $applicant->incident_date,
+            'situation' => [
+                'situation_id' => $applicant->situation_id,
+                'situation' => $applicant->situation->situation ?? null
+            ],
+            'attached_file' => $applicant->attached_file,
+            'attached_file_url' => $applicant->attached_file ? 
+                url('storage/img/applicant/files/' . $applicant->attached_file) : null
+        ];
+        
+        return response()->json([
+            'applicant' => $applicantData
         ], 200);
     }
 }

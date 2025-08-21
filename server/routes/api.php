@@ -66,7 +66,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/test', 'test');
         Route::get('/dashboard', 'dashboard');
         Route::get('/gender', 'gender');
-        Route::get('/users', 'users');
+        Route::get('/applicant', 'applicant');
     });
 });
 

@@ -2,6 +2,7 @@ import { useEffect, useState, type FC, type FormEvent } from "react";
 import BackButton from "../../../components/Button/BackButton";
 import SubmitButton from "../../../components/Button/SubmitButton";
 import FloatingLabelInput from "../../../components/Input/FloatingLabelInput";
+import BulletTextarea from "../../../components/Input/BulletTextarea";
 import SituationService from "../../../services/SituationService";
 import { useParams } from "react-router-dom";
 import Spinner from "../../../components/Spinner/Spinner";
@@ -18,6 +19,7 @@ const EditSituationForm: FC<EditSituationFormProps> = ({
   const [loadingGet, setLoadingGet] = useState(false);
   const [loadingUpdate, setLoadingUpdate] = useState(false);
   const [situation, setSituation] = useState("");
+  const [content, setContent] = useState("");
   const [errors, setErrors] = useState<SituationFieldErrors>({});
 
   const handleGetSituation = async (situationId: string | number) => {
@@ -27,6 +29,7 @@ const EditSituationForm: FC<EditSituationFormProps> = ({
 
       if (res.status === 200) {
         setSituation(res.data.Situation.Situation);
+        setContent(res.data.Situation.content || "");
       } else {
         console.error(
           "Unexpected error occurred during getting Situation: ",
@@ -51,11 +54,13 @@ const EditSituationForm: FC<EditSituationFormProps> = ({
 
       const res = await SituationService.updateSituation(situation_id!, {
         situation,
+        content,
       });
 
       if (res.status === 200) {
         setErrors({});
         setSituation(res.data.Situation.Situation);
+        setContent(res.data.Situation.content || "");
         onSituationUpdated(res.data.message);
       } else {
         console.error(
@@ -99,7 +104,7 @@ const EditSituationForm: FC<EditSituationFormProps> = ({
         <form onSubmit={handleUpdateSituation}>
           <div className="mb-4">
             <FloatingLabelInput
-              label="Situation"
+              label="Situation Title"
               type="text"
               name="Situation"
               value={situation}
@@ -107,6 +112,15 @@ const EditSituationForm: FC<EditSituationFormProps> = ({
               errors={errors.situation}
               required
               autoFocus
+            />
+          </div>
+          <div className="mb-4">
+            <BulletTextarea
+              label="Situation Details (with bullet points)"
+              name="content"
+              value={content}
+              onChange={setContent}
+              errors={errors.content}
             />
           </div>
           <div className="flex justify-end gap-2">

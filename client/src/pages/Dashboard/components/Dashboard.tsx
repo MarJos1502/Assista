@@ -1,27 +1,31 @@
 import { useState, useEffect } from "react";
-import { 
-  BsCalendar3, 
-  BsPeople, 
+import {
+  BsCalendar3,
+  BsPeople,
   BsLightningCharge,
   BsBarChart,
   BsGenderMale,
-  BsGenderFemale
+  BsGenderFemale,
 } from "react-icons/bs";
 import StatisticsService from "../../../services/StatisticsService";
-import type { DashboardStats, GenderStat, RecentActivity } from "../../../interfaces/StatisticsInterface";
+import type {
+  DashboardStats,
+  GenderStat,
+  RecentActivity,
+} from "../../../interfaces/StatisticsInterface";
 
 // Main Dashboard component
 const Dashboard = () => {
   const [currentDate, setCurrentDate] = useState("");
   const [stats, setStats] = useState<DashboardStats>({
-    totalUsers: 0,
+    totalApplicants: 0,
     genderStats: [],
     recentActivities: [],
     systemStats: {
       activeSessions: 0,
-      newUsersToday: 0,
-      systemLoad: 0
-    }
+      newApplicantsToday: 0,
+      systemLoad: 0,
+    },
   });
 
   useEffect(() => {
@@ -33,55 +37,56 @@ const Dashboard = () => {
       day: "numeric",
     };
     setCurrentDate(today.toLocaleDateString(undefined, options));
-    
+
     fetchDashboardStats();
   }, []);
 
   const fetchDashboardStats = async () => {
     try {
-      console.log('Fetching dashboard stats...');
+      console.log("Fetching dashboard stats...");
       const response = await StatisticsService.getDashboardStats();
-      console.log('Dashboard response:', response);
-      
+      console.log("Dashboard response:", response);
+
       if (response.data.success) {
         setStats({
-          totalUsers: response.data.data.total_users,
+          totalApplicants: response.data.data.total_applicants,
           genderStats: response.data.data.gender_stats,
           recentActivities: response.data.data.recent_activities,
           systemStats: {
             activeSessions: response.data.data.system_stats.active_sessions,
-            newUsersToday: response.data.data.system_stats.new_users_today,
-            systemLoad: response.data.data.system_stats.system_load
-          }
+            newApplicantsToday:
+              response.data.data.system_stats.new_applicants_today,
+            systemLoad: response.data.data.system_stats.system_load,
+          },
         });
       } else {
-        console.error('Dashboard API returned success: false', response.data);
+        console.error("Dashboard API returned success: false", response.data);
       }
     } catch (error) {
       console.error("Error fetching dashboard stats:", error);
       // Set default stats on error
       setStats({
-        totalUsers: 0,
+        totalApplicants: 0,
         genderStats: [],
         recentActivities: [],
         systemStats: {
           activeSessions: 0,
-          newUsersToday: 0,
-          systemLoad: 0
-        }
+          newApplicantsToday: 0,
+          systemLoad: 0,
+        },
       });
     }
   };
 
   const getGenderCount = (genderName: string) => {
-    const gender = stats.genderStats.find((g: GenderStat) => 
-      g.gender.toLowerCase() === genderName.toLowerCase()
+    const gender = stats.genderStats.find(
+      (g: GenderStat) => g.gender.toLowerCase() === genderName.toLowerCase()
     );
     return gender ? gender.count : 0;
   };
 
-  const getMaleCount = () => getGenderCount('male');
-  const getFemaleCount = () => getGenderCount('female');
+  const getMaleCount = () => getGenderCount("male");
+  const getFemaleCount = () => getGenderCount("female");
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -111,41 +116,47 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Total Users Card */}
+        {/* Total Applicants Card */}
         <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-lg shadow-lg">
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <BsPeople className="w-8 h-8" />
             </div>
             <div className="ml-4">
-              <h3 className="text-lg font-semibold">Total Users</h3>
-              <p className="text-2xl font-bold mt-1">{stats.totalUsers.toLocaleString()}</p>
+              <h3 className="text-lg font-semibold">Total Applicants</h3>
+              <p className="text-2xl font-bold mt-1">
+                {stats.totalApplicants.toLocaleString()}
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Male Users Card */}
+        {/* Male Applicants Card */}
         <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-lg shadow-lg">
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <BsGenderMale className="w-8 h-8" />
             </div>
             <div className="ml-4">
-              <h3 className="text-lg font-semibold">Male Users</h3>
-              <p className="text-2xl font-bold mt-1">{getMaleCount().toLocaleString()}</p>
+              <h3 className="text-lg font-semibold">Male Applicants</h3>
+              <p className="text-2xl font-bold mt-1">
+                {getMaleCount().toLocaleString()}
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Female Users Card */}
+        {/* Female Applicants Card */}
         <div className="bg-gradient-to-r from-pink-500 to-pink-600 text-white p-6 rounded-lg shadow-lg">
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <BsGenderFemale className="w-8 h-8" />
             </div>
             <div className="ml-4">
-              <h3 className="text-lg font-semibold">Female Users</h3>
-              <p className="text-2xl font-bold mt-1">{getFemaleCount().toLocaleString()}</p>
+              <h3 className="text-lg font-semibold">Female Applicants</h3>
+              <p className="text-2xl font-bold mt-1">
+                {getFemaleCount().toLocaleString()}
+              </p>
             </div>
           </div>
         </div>
@@ -161,15 +172,22 @@ const Dashboard = () => {
           </h3>
           <div className="space-y-4">
             {stats.recentActivities.length > 0 ? (
-              stats.recentActivities.map((activity: RecentActivity, index: number) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
-                    <span className="text-gray-700">{activity.message}</span>
+              stats.recentActivities.map(
+                (activity: RecentActivity, index: number) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  >
+                    <div className="flex items-center">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                      <span className="text-gray-700">{activity.message}</span>
+                    </div>
+                    <span className="text-gray-500 text-sm">
+                      {activity.time}
+                    </span>
                   </div>
-                  <span className="text-gray-500 text-sm">{activity.time}</span>
-                </div>
-              ))
+                )
+              )
             ) : (
               <div className="text-center py-8 text-gray-500">
                 <p>No recent activities</p>
@@ -187,15 +205,21 @@ const Dashboard = () => {
           <div className="space-y-4">
             <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
               <span className="text-gray-700">Active Sessions</span>
-              <span className="font-semibold text-blue-600">{stats.systemStats.activeSessions}</span>
+              <span className="font-semibold text-blue-600">
+                {stats.systemStats.activeSessions}
+              </span>
             </div>
             <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-              <span className="text-gray-700">New Users Today</span>
-              <span className="font-semibold text-green-600">{stats.systemStats.newUsersToday}</span>
+              <span className="text-gray-700">New Applicants Today</span>
+              <span className="font-semibold text-green-600">
+                {stats.systemStats.newApplicantsToday}
+              </span>
             </div>
             <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
               <span className="text-gray-700">System Load</span>
-              <span className="font-semibold text-yellow-600">{stats.systemStats.systemLoad}%</span>
+              <span className="font-semibold text-yellow-600">
+                {stats.systemStats.systemLoad}%
+              </span>
             </div>
           </div>
         </div>

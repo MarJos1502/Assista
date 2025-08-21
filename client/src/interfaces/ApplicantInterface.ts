@@ -25,7 +25,7 @@ export interface ApplicantColumns {
   situation: SituationColumns;
 
   attached_file?: string;
-  attached_file_url?: string;
+  attached_file_url: string;
 
   is_deleted: boolean;
   created_at: string;
@@ -53,7 +53,6 @@ export interface ApplicantFieldErrors {
   incident_date?: string[];
   situation?: string[];
 
-  add_applicant_file?: string[];
-  edit_applicant_file?: string[];
+  attached_file?: string[]; // Generic for file upload errors (add or edit)
   remove_attached_file?: string[];
 }

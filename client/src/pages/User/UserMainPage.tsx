@@ -7,6 +7,7 @@ import { useToastMessage } from "../../hooks/useToastMessage";
 import { useRefresh } from "../../hooks/useRefresf";
 import DeleteUserFormModal from "./components/DeleteUserFormModal";
 import { useEffect } from "react";
+import type { UserColumns } from "../../interfaces/UserInterface";
 
 const UserMainPage = () => {
   useEffect(() => {
@@ -17,21 +18,21 @@ const UserMainPage = () => {
     isOpen: isAddUserFormModalOpen,
     openModal: openAddUserFormModal,
     closeModal: closeAddUserFormModal,
-  } = useModal(false);
+  } = useModal<UserColumns>(false);
 
   const {
     isOpen: isEditUserFormModalOpen,
-    selectedUser: selectedUserForEdit,
+    selectedItem: selectedUserForEdit,
     openModal: openEditUserFormModal,
     closeModal: closeEditUserFormModal,
-  } = useModal(false);
+  } = useModal<UserColumns>(false);
 
   const {
     isOpen: isDeleteUserFormModalOpen,
-    selectedUser: selectedUserForDelete,
+    selectedItem: selectedUserForDelete,
     openModal: openDeleteUserFormModal,
     closeModal: closeDeleteUserFormModal,
-  } = useModal(false);
+  } = useModal<UserColumns>(false);
 
   const {
     message: toastMessage,

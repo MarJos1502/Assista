@@ -17,15 +17,15 @@ import Modal from "../../../components/Modal";
 
 interface ApplicantListProps {
   onAddApplicant: () => void;
-  //onEditApplicant: (applicant: ApplicantColumns | null) => void;
-  //onDeleteApplicant: (applicant: ApplicantColumns | null) => void;
+  onEditApplicant: (applicant: ApplicantColumns) => void;
+  onDeleteApplicant: (applicant: ApplicantColumns) => void;
   refreshKey: boolean;
 }
 
 const ApplicantList: FC<ApplicantListProps> = ({
   onAddApplicant,
-  //onEditApplicant,
-  //onDeleteApplicant,
+  onEditApplicant,
+  onDeleteApplicant,
   refreshKey,
 }) => {
   const [loadingApplicants, setLoadingApplicants] = useState(false);
@@ -292,16 +292,16 @@ const ApplicantList: FC<ApplicantListProps> = ({
                         <button
                           type="button"
                           className="text-green-600 hover:text-green-700 p-2 rounded-lg hover:bg-green-50 transition-colors"
-                          //onClick={() => onEditUser(user)}
-                          title="Edit User"
+                          onClick={() => onEditApplicant(applicant)}
+                          title="Edit Applicant"
                         >
                           <BsPencilSquare className="w-5 h-5" />
                         </button>
                         <button
                           type="button"
                           className="text-red-600 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors"
-                          //onClick={() => onDeleteUser(user)}
-                          title="Delete User"
+                          onClick={() => onDeleteApplicant(applicant)}
+                          title="Delete Applicant"
                         >
                           <BsTrash className="w-5 h-5" />
                         </button>

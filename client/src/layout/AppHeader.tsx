@@ -3,6 +3,7 @@ import { useHeader } from "../contexts/HeaderContext";
 import { useSidebar } from "../contexts/SidebarContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import HorizontalUserProfileModal from "./components/HorizontalUserProfileModal";
 
 const AppHeader = () => {
   const { isOpen, toggleUserMenu } = useHeader();
@@ -12,6 +13,7 @@ const AppHeader = () => {
   const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   const handleLogout = async (e: FormEvent) => {
     try {
@@ -26,6 +28,15 @@ const AppHeader = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleOpenProfile = () => {
+    setIsProfileModalOpen(true);
+    toggleUserMenu();
+  };
+
+  const handleCloseProfile = () => {
+    setIsProfileModalOpen(false);
   };
 
   const handleUserFullNameFormat = () => {
@@ -74,8 +85,8 @@ const AppHeader = () => {
                   viewBox="0 0 20 20"
                 >
                   <path
-                    clip-rule="evenodd"
-                    fill-rule="evenodd"
+                    clipRule="evenodd"
+                    fillRule="evenodd"
                     d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"
                   ></path>
                 </svg>
@@ -111,7 +122,8 @@ const AppHeader = () => {
                     ) : (
                       <div className="relative inline-flex items-center justify-center w-8 h-8 text-center text-sm overflow-hidden bg-gray-300 rounded-full">
                         <span className="font-medium text-gray-600">
-                          {user?.user?.last_name?.charAt(0) || ''}{user?.user?.first_name?.charAt(0) || ''}
+                          {user?.user?.last_name?.charAt(0) || ""}
+                          {user?.user?.first_name?.charAt(0) || ""}
                         </span>
                       </div>
                     )}
@@ -132,6 +144,16 @@ const AppHeader = () => {
                     <li>
                       <button
                         type="button"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-start cursor-pointer"
+                        role="menuitem"
+                        onClick={handleOpenProfile}
+                      >
+                        👤 View Profile
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        type="button"
                         className="block px-4 py-2 text-sm text-red-600 hover:bg-red-100 w-full text-start cursor-pointer disabled:cursor-not-allowed"
                         role="menuitem"
                         onClick={handleLogout}
@@ -147,6 +169,11 @@ const AppHeader = () => {
           </div>
         </div>
       </nav>
+
+      <HorizontalUserProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={handleCloseProfile}
+      />
     </>
   );
 };

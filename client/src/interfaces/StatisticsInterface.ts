@@ -11,12 +11,12 @@ export interface RecentActivity {
 
 export interface SystemStats {
     activeSessions: number;
-    newUsersToday: number;
+    newApplicantsToday: number;
     systemLoad: number;
 }
 
 export interface DashboardStats {
-    totalUsers: number;
+    totalApplicants: number;
     genderStats: GenderStat[];
     recentActivities: RecentActivity[];
     systemStats: SystemStats;

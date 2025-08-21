@@ -1,4 +1,4 @@
-import React, { useState, useEffect, type FC, type FormEvent } from "react";
+import { useState, useEffect, type FC, type FormEvent } from "react";
 import Modal from "../../../components/Modal";
 import type { GenderColumns } from "../../../interfaces/GenderInterface";
 import type { CrisisColumns } from "../../../interfaces/CrisisInterface";
@@ -10,113 +10,8 @@ import ApplicantService from "../../../services/ApplicantService";
 import CloseButton from "../../../components/Button/CloseButton";
 import SubmitButton from "../../../components/Button/SubmitButton";
 import type { ApplicantFieldErrors } from "../../../interfaces/ApplicantInterface";
-
-// --- START: Self-contained Components and Hooks for compilation ---
-
-// Modal Component (Copied from your provided Modal code)
-
-// FloatingLabelInput Component (Copied from previous responses for self-containment)
-interface FloatingLabelInputProps {
-  label: string;
-  type: string;
-  name: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  required?: boolean;
-  autoFocus?: boolean;
-  errors?: string[];
-  className?: string;
-}
-
-const FloatingLabelInput: FC<FloatingLabelInputProps> = ({
-  label,
-  type,
-  name,
-  value,
-  onChange,
-  required = false,
-  autoFocus = false,
-  errors,
-  className = "",
-}) => {
-  return (
-    <div className={`relative ${className}`}>
-      <input
-        type={type}
-        id={name}
-        name={name}
-        value={value}
-        onChange={onChange}
-        required={required}
-        autoFocus={autoFocus}
-        placeholder=" "
-        className={`block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer shadow-sm ${
-          errors && errors.length > 0 ? "border-red-500" : ""
-        }`}
-      />
-      <label
-        htmlFor={name}
-        className="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
-      >
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      {errors && errors.length > 0 && (
-        <p className="mt-2 text-sm text-red-600">{errors[0]}</p>
-      )}
-    </div>
-  );
-};
-
-// FloatingLabelSelect Component (Copied from previous responses for self-containment)
-interface FloatingLabelSelectProps {
-  label: string;
-  name: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-  required?: boolean;
-  errors?: string[];
-  children: React.ReactNode;
-  className?: string;
-}
-
-const FloatingLabelSelect: FC<FloatingLabelSelectProps> = ({
-  label,
-  name,
-  value,
-  onChange,
-  required = false,
-  errors,
-  children,
-  className = "",
-}) => {
-  return (
-    <div className={`relative ${className}`}>
-      <select
-        id={name}
-        name={name}
-        value={value}
-        onChange={onChange}
-        required={required}
-        className={`block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer shadow-sm ${
-          errors && errors.length > 0 ? "border-red-500" : ""
-        }`}
-      >
-        {children}
-      </select>
-      <label
-        htmlFor={name}
-        className="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
-      >
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      {errors && errors.length > 0 && (
-        <p className="mt-2 text-sm text-red-600">{errors[0]}</p>
-      )}
-    </div>
-  );
-};
-
-// --- END: Self-contained Components and Hooks ---
+import FloatingLabelInput from "../../../components/Input/FloatingLabelInput";
+import FloatingLabelSelect from "../../../components/Select/FloatingLabelSelect";
 
 interface AddApplicantFormModalProps {
   isOpen: boolean;
@@ -577,9 +472,9 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
               <span className="text-gray-700">{attachedFile.name}</span>
             )}
           </div>
-          {errors.add_applicant_file && (
+          {errors.attached_file && (
             <p className="mt-2 text-sm text-red-600">
-              {errors.add_applicant_file[0]}
+              {errors.attached_file[0]}
             </p>
           )}
           <p className="text-sm text-gray-600">

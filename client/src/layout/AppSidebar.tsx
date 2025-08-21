@@ -12,29 +12,9 @@ const AppSidebar = () => {
       name: "Dashboard",
     },
     {
-      icon: <BsGenderAmbiguous className="w-5 h-5" />,
-      path: "/genders",
-      name: "Gender",
-    },
-    {
-      icon: <BsGenderAmbiguous className="w-5 h-5" />,
-      path: "/crisiss",
-      name: "Crisis",
-    },
-    {
-      icon: <BsGenderAmbiguous className="w-5 h-5" />,
-      path: "/situations",
-      name: "Situation",
-    },
-    {
-      icon: <BsGenderAmbiguous className="w-5 h-5" />,
+      icon: <BsPeople className="w-5 h-5" />,
       path: "/applicants",
       name: "Applicant",
-    },
-    {
-      icon: <BsPeople className="w-5 h-5" />,
-      path: "/users",
-      name: "User",
     },
   ];
 

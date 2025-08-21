@@ -1,6 +1,7 @@
 import { useState, type FC, type FormEvent } from "react";
 import SubmitButton from "../../../components/Button/SubmitButton";
 import FloatingLabelInput from "../../../components/Input/FloatingLabelInput";
+import BulletTextarea from "../../../components/Input/BulletTextarea";
 import SituationService from "../../../services/SituationService";
 import type { SituationFieldErrors } from "../../../interfaces/SituationInterface";
 
@@ -15,6 +16,7 @@ const AddSituationForm: FC<AddSituationFormProps> = ({
 }) => {
   const [loadingStore, setLoadingStore] = useState(false);
   const [situation, setSituation] = useState("");
+  const [content, setContent] = useState("");
   const [errors, setErrors] = useState<SituationFieldErrors>({});
 
   const handleStoreSituation = async (e: FormEvent) => {
@@ -23,10 +25,14 @@ const AddSituationForm: FC<AddSituationFormProps> = ({
 
       setLoadingStore(true);
 
-      const res = await SituationService.storeSituation({ situation });
+      const res = await SituationService.storeSituation({
+        situation,
+        content,
+      });
 
       if (res.status === 200) {
         setSituation("");
+        setContent("");
         setErrors({});
         onSituationAdded(res.data.message);
         refreshKey();
@@ -55,7 +61,7 @@ const AddSituationForm: FC<AddSituationFormProps> = ({
       <form onSubmit={handleStoreSituation}>
         <div className="mb-4">
           <FloatingLabelInput
-            label="Situation"
+            label="Situation Title"
             type="text"
             name="Situation"
             value={situation}
@@ -63,6 +69,15 @@ const AddSituationForm: FC<AddSituationFormProps> = ({
             required
             autoFocus
             errors={errors.situation}
+          />
+        </div>
+        <div className="mb-4">
+          <BulletTextarea
+            label="Situation Details (with bullet points)"
+            name="content"
+            value={content}
+            onChange={setContent}
+            errors={errors.content}
           />
         </div>
         <div className="flex justify-end">

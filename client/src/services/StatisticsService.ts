@@ -19,9 +19,9 @@ const StatisticsService = {
         }
     },
 
-    getUserStats: async () => {
+    getApplicantStats: async () => {
         try {
-            const response = await AxiosInstance.get("/statistics/users");
+            const response = await AxiosInstance.get("/statistics/applicant");
             return response;
         } catch (error) {
             throw error;
