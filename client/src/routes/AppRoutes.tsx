@@ -15,6 +15,18 @@ import DashMainPage from "../pages/Dashboard/DashMainPage";
 import { AuthProvider } from "../contexts/AuthContext";
 import ProtectedRoute from "./ProtectedRoute";
 import ApplicantMainPage from "../pages/Applicant/ApplicantMainPage";
+import BarangayMainPage from "../pages/Barangay/BarangayMainPage";
+import EditBarangayPage from "../pages/Barangay/EditBarangayPage";
+import DeleteBarangayPage from "../pages/Barangay/DeleteBarangayPage";
+import EditCityPage from "../pages/City/EditCityPage";
+import DeleteCityPage from "../pages/City/DeleteCityPage";
+import HouseMainPage from "../pages/House/HouseMainPage"; // Assuming this page exists
+import EditHousePage from "../pages/House/EditHousePage";
+import DeleteHousePage from "../pages/House/DeleteHousePage";
+import StreetMainPage from "../pages/Street/StreetMainPage"; // Assuming this page exists
+import EditStreetPage from "../pages/Street/EditStreetPage";
+import DeleteStreetPage from "../pages/Street/DeleteStreetPage";
+import CityMainPage from "../pages/City/CityMainPage";
 
 const AppRoutes = () => {
   return (
@@ -48,6 +60,33 @@ const AppRoutes = () => {
             <Route
               path="/gender/delete/:gender_id"
               element={<DeleteGenderPage />}
+            />
+            <Route path="/barangays" element={<BarangayMainPage />} />
+            <Route
+              path="/barangay/edit/:barangay_id"
+              element={<EditBarangayPage />}
+            />
+            <Route
+              path="/barangay/delete/:barangay_id"
+              element={<DeleteBarangayPage />}
+            />
+            <Route path="/cities" element={<CityMainPage />} />
+            <Route path="/city/edit/:city_id" element={<EditCityPage />} />
+            <Route path="/city/delete/:city_id" element={<DeleteCityPage />} />
+            <Route path="/houses" element={<HouseMainPage />} />
+            <Route path="/house/edit/:house_id" element={<EditHousePage />} />
+            <Route
+              path="/house/delete/:house_id"
+              element={<DeleteHousePage />}
+            />
+            <Route path="/streets" element={<StreetMainPage />} />
+            <Route
+              path="/street/edit/:street_id"
+              element={<EditStreetPage />}
+            />
+            <Route
+              path="/street/delete/:street_id"
+              element={<DeleteStreetPage />}
             />
             <Route path="/crisiss" element={<CrisisMainPage />} />
             <Route

@@ -1,11 +1,39 @@
 import { Link } from "react-router-dom";
 import { useSidebar } from "../contexts/SidebarContext";
-import { BsSpeedometer2, BsGenderAmbiguous, BsPeople } from "react-icons/bs";
+import {
+  BsSpeedometer2,
+  BsGenderAmbiguous,
+  BsPeople,
+  BsHouse,
+  BsSignpost,
+  BsBuilding,
+  BsGeoAlt,
+} from "react-icons/bs";
 
 const AppSidebar = () => {
   const { isOpen, toggleSidebar } = useSidebar();
 
   const menuItems = [
+    {
+      icon: <BsGeoAlt className="w-5 h-5" />,
+      path: "/barangays",
+      name: "Barangay",
+    },
+    {
+      icon: <BsBuilding className="w-5 h-5" />,
+      path: "/cities",
+      name: "City",
+    },
+    {
+      icon: <BsHouse className="w-5 h-5" />,
+      path: "/houses",
+      name: "House",
+    },
+    {
+      icon: <BsSignpost className="w-5 h-5" />,
+      path: "/streets",
+      name: "Street",
+    },
     {
       icon: <BsSpeedometer2 className="w-5 h-5" />,
       path: "/dashboard",

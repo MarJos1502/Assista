@@ -42,11 +42,7 @@ const UploadFileInput: FC<UploadInputProps> = ({
         onChange={handleFileChange}
         className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-500 file:text-white hover:file:bg-blue-600 shadow-sm"
       />
-      {value && (
-        <p className="mt-2 text-sm text-gray-600">
-          Selected file: {value.name}
-        </p>
-      )}
+
       {existingImageUrl && !value && (
         <div className="mt-2 flex items-center text-sm text-gray-600">
           Existing:{" "}
@@ -72,6 +68,9 @@ const UploadFileInput: FC<UploadInputProps> = ({
       {errors && errors.length > 0 && (
         <p className="mt-2 text-sm text-red-600">{errors[0]}</p>
       )}
+      <p className="text-sm text-gray-600 mt-2">
+        NOTE: Please upload files in JPEG or PDF format only
+      </p>
     </div>
   );
 };

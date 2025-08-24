@@ -61,7 +61,10 @@ const HorizontalUserProfileModal: FC<HorizontalUserProfileModalProps> = ({
       formData.append("birth_date", birthDate);
       formData.append("gmail", gmail);
 
-      const res = await UserService.updateUser(user?.user.user_id!, formData);
+      if (!user || !user.user) {
+        throw new Error("User data is not available");
+      }
+      const res = await UserService.updateUser(user.user.user_id, formData);
 
       if (res.status === 200) {
         setExistingProfilePicture(
@@ -116,7 +119,7 @@ const HorizontalUserProfileModal: FC<HorizontalUserProfileModalProps> = ({
       setMiddleName(user.user.middle_name ?? "");
       setLastName(user.user.last_name);
       setSuffixName(user.user.suffix_name ?? "");
-      setGender(user.user.gender.gender_id.toString());
+      setGender(user.user.gender?.gender?.toString() || "");
       setBirthDate(user.user.birth_date);
       setGmail(user.user.gmail);
     }
@@ -208,10 +211,7 @@ const HorizontalUserProfileModal: FC<HorizontalUserProfileModalProps> = ({
                     <>
                       <option value="">Select Gender</option>
                       {genders.map((genderOpt) => (
-                        <option
-                          key={genderOpt.gender_id}
-                          value={genderOpt.gender_id}
-                        >
+                        <option key={genderOpt.gender_id} value={genderOpt.gender_id}>
                           {genderOpt.gender}
                         </option>
                       ))}

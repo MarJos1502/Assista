@@ -2,6 +2,10 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\GenderController;
+use App\Http\Controllers\Api\HouseController;
+use App\Http\Controllers\Api\StreetController;
+use App\Http\Controllers\Api\BarangayController;
+use App\Http\Controllers\Api\CityController;
 use App\Http\Controllers\Api\CrisisController;
 use App\Http\Controllers\Api\SituationController;
 use App\Http\Controllers\Api\UserController;
@@ -35,6 +39,38 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/storeGender', 'storeGender');
         Route::put('/updateGender/{gender}', 'updateGender');
         Route::put('/destroyGender/{gender}', 'destroyGender');
+    });
+
+    Route::controller(HouseController::class)->prefix('/house')->group(function () {
+        Route::get('/loadHouses', 'loadHouses');
+        Route::get('/getHouse/{houseId}', 'getHouse');
+        Route::post('/storeHouse', 'storeHouse');
+        Route::put('/updateHouse/{house}', 'updateHouse');
+        Route::put('/destroyHouse/{house}', 'destroyHouse');
+    });
+
+    Route::controller(StreetController::class)->prefix('/street')->group(function () {
+        Route::get('/loadStreets', 'loadStreets');
+        Route::get('/getStreet/{streetId}', 'getStreet');
+        Route::post('/storeStreet', 'storeStreet');
+        Route::put('/updateStreet/{street}', 'updateStreet');
+        Route::put('/destroyStreet/{street}', 'destroyStreet');
+    });
+
+    Route::controller(BarangayController::class)->prefix('/barangay')->group(function () {
+        Route::get('/loadBarangays', 'loadBarangays');
+        Route::get('/getBarangay/{barangayId}', 'getBarangay');
+        Route::post('/storeBarangay', 'storeBarangay');
+        Route::put('/updateBarangay/{barangay}', 'updateBarangay');
+        Route::put('/destroyBarangay/{barangay}', 'destroyBarangay');
+    });
+
+    Route::controller(CityController::class)->prefix('/city')->group(function () {
+        Route::get('/loadCitys', 'loadCitys');
+        Route::get('/getCity/{cityId}', 'getCity');
+        Route::post('/storeCity', 'storeCity');
+        Route::put('/updateCity/{city}', 'updateCity');
+        Route::put('/destroyCity/{city}', 'destroyCity');
     });
 
     Route::controller(CrisisController::class)->prefix('/crisis')->group(function () {

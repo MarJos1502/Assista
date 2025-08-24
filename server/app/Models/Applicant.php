@@ -40,11 +40,10 @@ class Applicant extends Model
         // Contact Information
         'contact_number',
         'gmail',
-        'house_no',
-        'street',
-        'subdivision',
-        'barangay',
-        'city',
+        'house_id',
+        'street_id',
+        'barangay_id',
+        'city_id',
 
         // Crisis Details
         'crisis_id',
@@ -80,7 +79,26 @@ class Applicant extends Model
     {
         return $this->belongsTo(Gender::class, 'gender_id', 'gender_id');
     }
+    
+     public function house(): BelongsTo
+    {
+        return $this->belongsTo(House::class, 'house_id', 'house_id');
+    }
 
+     public function street(): BelongsTo
+    {
+        return $this->belongsTo(Street::class, 'street_id', 'street_id');
+    }
+
+     public function barangay(): BelongsTo
+    {
+        return $this->belongsTo(Barangay::class, 'barangay_id', 'barangay_id');
+    }
+
+     public function City(): BelongsTo
+    {
+        return $this->belongsTo(City::class, 'city_id', 'city_id');
+    }
     /**
      * Get the crisis that the applicant is related to.
      * Defines a many-to-one relationship with the Crisis model.

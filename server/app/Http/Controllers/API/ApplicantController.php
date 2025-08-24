@@ -74,11 +74,10 @@ class ApplicantController extends Controller
             // Contact Information
             'contact_number' => ['required', 'string', 'max:20'], 
             'gmail' => ['required', 'min:6', 'max:255', Rule::unique('tbl_applicants', 'gmail')], 
-            'house_no' => ['required', 'string', 'max:100'],    
-            'street' => ['required', 'string', 'max:100'],      
-            'subdivision' => ['nullable', 'string', 'max:100'],
-            'barangay' => ['required', 'string', 'max:100'],    
-            'city' => ['required', 'string', 'max:100'],        
+            'house' => ['required'],    
+            'street' => ['required'],      
+            'barangay' => ['required'],    
+            'city' => ['required'],        
             
             // Crisis Details
             'crisis' => ['required'], // Assuming this is crisis_id from frontend
@@ -114,11 +113,10 @@ class ApplicantController extends Controller
             'age' => $age,
             'gmail' => $validated['gmail'],
             'contact_number' => $validated['contact_number'],
-            'house_no' => $validated['house_no'],
-            'street' => $validated['street'],
-            'subdivision' => $validated['subdivision'],
-            'barangay' => $validated['barangay'],
-            'city' => $validated['city'],
+            'house_id' => $validated['house'],
+            'street_id' => $validated['street'],
+            'barangay_id' => $validated['barangay'],
+            'city_id' => $validated['city'],
             'situation_id' => $validated['situation'],
             'is_deleted' => false, // Ensure default is_deleted status
         ]);
@@ -142,11 +140,10 @@ class ApplicantController extends Controller
             // Contact Information
             'contact_number' => ['required', 'string', 'max:20'],
             'gmail' => ['required', 'min:6', 'max:255', Rule::unique('tbl_applicants', 'gmail')->ignore($applicant->applicant_id, 'applicant_id')],
-            'house_no' => ['required', 'string', 'max:100'],
-            'street' => ['required', 'string', 'max:100'],
-            'subdivision' => ['nullable', 'string', 'max:100'],
-            'barangay' => ['required', 'string', 'max:100'],
-            'city' => ['required', 'string', 'max:100'],
+            'house' => ['required'],
+            'street' => ['required'],
+            'barangay' => ['required'],
+            'city' => ['required'],
             
             // Crisis Details
             'crisis' => ['required'],
@@ -195,12 +192,11 @@ class ApplicantController extends Controller
             'age' => $age,
             'gmail' => $validated['gmail'],
             'contact_number' => $validated['contact_number'],
-            'house_no' => $validated['house_no'],
-            'street' => $validated['street'],
-            'subdivision' => $validated['subdivision'],
-            'barangay' => $validated['barangay'],
-            'city' => $validated['city'],
-            'situation' => $validated['situation'],
+            'house_id' => $validated['house'],
+            'street_id' => $validated['street'],
+            'barangay_id' => $validated['barangay'],
+            'city_id' => $validated['city'],
+            'situation_id' => $validated['situation'],
         ]);
 
         // Transform the applicant object for the response, adding full URLs

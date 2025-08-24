@@ -1,6 +1,10 @@
 import type { GenderColumns } from "./GenderInterface";
 import type { CrisisColumns } from "./CrisisInterface";
 import type { SituationColumns } from "./SituationInterface";
+import type { HouseColumns } from "./HouseInterface";
+import type { StreetColumns } from "./StreetInterface";
+import type { BarangayColumns } from "./BarangayInterface";
+import type { CityColumns } from "./CityInterface";
 
 export interface ApplicantColumns {
   applicant_id: number;
@@ -14,11 +18,10 @@ export interface ApplicantColumns {
   
   contact_number: string;
   gmail: string;
-  house_no: string;
-  street: string;
-  subdivision?: string;
-  barangay: string;
-  city: string;
+  house: HouseColumns;
+  street: StreetColumns;
+  barangay: BarangayColumns;
+  city: CityColumns;
 
   crisis: CrisisColumns;
   incident_date: string;
@@ -43,7 +46,7 @@ export interface ApplicantFieldErrors {
   
   contact_number?: string[];
   gmail?: string[];
-  house_no?: string[];
+  house?: string[];
   street?: string[];
   subdivision?: string[];
   barangay?: string[];

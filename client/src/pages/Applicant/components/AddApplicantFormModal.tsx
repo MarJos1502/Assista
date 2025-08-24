@@ -3,11 +3,20 @@ import Modal from "../../../components/Modal";
 import type { GenderColumns } from "../../../interfaces/GenderInterface";
 import type { CrisisColumns } from "../../../interfaces/CrisisInterface";
 import type { SituationColumns } from "../../../interfaces/SituationInterface";
+import type { HouseColumns } from "../../../interfaces/HouseInterface";
+import type { StreetColumns } from "../../../interfaces/StreetInterface";
+import type { BarangayColumns } from "../../../interfaces/BarangayInterface";
+import type { CityColumns } from "../../../interfaces/CityInterface";
 import GenderService from "../../../services/GenderService";
 import crisisService from "../../../services/CrisisService";
 import SituationService from "../../../services/SituationService";
 import ApplicantService from "../../../services/ApplicantService";
+import HouseService from "../../../services/HouseService";
+import StreetService from "../../../services/StreetService";
+import BarangayService from "../../../services/BarangayService";
+import CityService from "../../../services/CityService";
 import CloseButton from "../../../components/Button/CloseButton";
+import UploadFileInput from "../../../components/Input/UploadFileInput";
 import SubmitButton from "../../../components/Button/SubmitButton";
 import type { ApplicantFieldErrors } from "../../../interfaces/ApplicantInterface";
 import FloatingLabelInput from "../../../components/Input/FloatingLabelInput";
@@ -34,16 +43,23 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
   const [genderId, setGenderId] = useState("");
   const [genders, setGenders] = useState<GenderColumns[]>([]);
   const [loadingGenders, setLoadingGenders] = useState(false);
+  const [loadingHouses, setLoadingHouses] = useState(false);
+  const [loadingStreets, setLoadingStreets] = useState(false);
+  const [loadingBarangays, setLoadingBarangays] = useState(false);
+  const [loadingCities, setLoadingCities] = useState(false);
   const [birthDate, setBirthDate] = useState("");
 
   // State for Contact Information
   const [contactNumber, setContactNumber] = useState("");
   const [gmail, setGmail] = useState("");
-  const [houseNo, setHouseNo] = useState("");
-  const [street, setStreet] = useState("");
-  const [subdivision, setSubdivision] = useState("");
-  const [barangay, setBarangay] = useState("");
-  const [city, setCity] = useState("");
+  const [houseId, setHouseId] = useState("");
+  const [houses, setHouses] = useState<HouseColumns[]>([]);
+  const [streetId, setStreetId] = useState("");
+  const [streets, setStreets] = useState<StreetColumns[]>([]);
+  const [barangayId, setBarangayId] = useState("");
+  const [barangays, setBarangays] = useState<BarangayColumns[]>([]);
+  const [cityId, setCityId] = useState("");
+  const [cities, setCities] = useState<CityColumns[]>([]);
 
   // State for Crisis Information
   const [crisisId, setCrisisId] = useState("");
@@ -75,12 +91,106 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
       if (res.status === 200) {
         setGenders(res.data.genders);
       } else {
-        // Handle error without console.error
+        console.error(
+          "Unexpected error occurred during loading genders: ",
+          res.status
+        );
       }
     } catch (error) {
-      // Handle error without console.error
+      console.error(
+        "Unexpected server error occurred during loading genders: ",
+        error
+      );
     } finally {
       setLoadingGenders(false);
+    }
+  };
+
+  const handleLoadHouses = async () => {
+    try {
+      setLoadingHouses(true);
+      const res = await HouseService.loadHouses();
+      if (res.status === 200) {
+        setHouses(res.data.houses);
+      } else {
+        console.error(
+          "Unexpected error occurred during loading houses: ",
+          res.status
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Unexpected server error occurred during loading houses: ",
+        error
+      );
+    } finally {
+      setLoadingHouses(false);
+    }
+  };
+
+  const handleLoadStreets = async () => {
+    try {
+      setLoadingStreets(true);
+      const res = await StreetService.loadStreets();
+      if (res.status === 200) {
+        setStreets(res.data.streets);
+      } else {
+        console.error(
+          "Unexpected error occurred during loading streets: ",
+          res.status
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Unexpected server error occurred during loading streets: ",
+        error
+      );
+    } finally {
+      setLoadingStreets(false);
+    }
+  };
+
+  const handleLoadBarangays = async () => {
+    try {
+      setLoadingBarangays(true);
+      const res = await BarangayService.loadBarangays();
+      if (res.status === 200) {
+        setBarangays(res.data.barangays);
+      } else {
+        console.error(
+          "Unexpected error occurred during loading barangays: ",
+          res.status
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Unexpected server error occurred during loading barangays: ",
+        error
+      );
+    } finally {
+      setLoadingBarangays(false);
+    }
+  };
+
+  const handleLoadCities = async () => {
+    try {
+      setLoadingCities(true);
+      const res = await CityService.loadCitys();
+      if (res.status === 200) {
+        setCities(res.data.citys);
+      } else {
+        console.error(
+          "Unexpected error occurred during loading cities: ",
+          res.status
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Unexpected server error occurred during loading cities: ",
+        error
+      );
+    } finally {
+      setLoadingCities(false);
     }
   };
 
@@ -91,10 +201,16 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
       if (res.status === 200) {
         setCrisiss(res.data.crisiss);
       } else {
-        // Handle error without console.error
+        console.error(
+          "Unexpected error occurred during loading crisis types: ",
+          res.status
+        );
       }
     } catch (error) {
-      // Handle error without console.error
+      console.error(
+        "Unexpected server error occurred during loading crisis types: ",
+        error
+      );
     } finally {
       setLoadingCrisiss(false);
     }
@@ -107,10 +223,16 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
       if (res.status === 200) {
         setSituations(res.data.situations);
       } else {
-        // Handle error without console.error
+        console.error(
+          "Unexpected error occurred during loading situations: ",
+          res.status
+        );
       }
     } catch (error) {
-      // Handle error without console.error
+      console.error(
+        "Unexpected server error occurred during loading situations: ",
+        error
+      );
     } finally {
       setLoadingSituations(false);
     }
@@ -121,6 +243,10 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
       handleLoadGenders();
       handleLoadCrisiss();
       handleLoadSituations();
+      handleLoadHouses();
+      handleLoadStreets();
+      handleLoadBarangays();
+      handleLoadCities();
     }
   }, [isOpen]);
 
@@ -158,11 +284,10 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
       // Contact Information
       formData.append("contact_number", contactNumber);
       formData.append("gmail", gmail);
-      formData.append("house_no", houseNo);
-      formData.append("street", street);
-      formData.append("subdivision", subdivision || "");
-      formData.append("barangay", barangay);
-      formData.append("city", city);
+      formData.append("house", houseId);
+      formData.append("street", streetId);
+      formData.append("barangay", barangayId);
+      formData.append("city", cityId);
 
       // Crisis Details
       formData.append("crisis", crisisId);
@@ -180,11 +305,10 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
         setBirthDate("");
         setContactNumber("");
         setGmail("");
-        setHouseNo("");
-        setStreet("");
-        setSubdivision("");
-        setBarangay("");
-        setCity("");
+        setHouseId("");
+        setStreetId("");
+        setBarangayId("");
+        setCityId("");
         setCrisisId("");
         setIncidentDate("");
         setSituationId("");
@@ -330,50 +454,96 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
               required
               errors={errors.gmail}
             />
-            <FloatingLabelInput
-              label="House No. / Lot / Block"
-              type="text"
-              name="house_no"
-              value={houseNo}
-              onChange={(e) => setHouseNo(e.target.value)}
+            <FloatingLabelSelect
+              label="House"
+              name="house_id"
+              value={houseId}
+              onChange={(e) => setHouseId(e.target.value)}
               required
-              errors={errors.house_no}
-            />
-            <FloatingLabelInput
+              errors={errors.house}
+            >
+              {loadingHouses ? (
+                <option value="">Loading Houses...</option>
+              ) : (
+                <>
+                  <option value="">Select House</option>
+                  {houses.map((houseOpt) => (
+                    <option key={houseOpt.house_id} value={houseOpt.house_id}>
+                      {houseOpt.house}
+                    </option>
+                  ))}
+                </>
+              )}
+            </FloatingLabelSelect>
+            <FloatingLabelSelect
               label="Street"
-              type="text"
-              name="street"
-              value={street}
-              onChange={(e) => setStreet(e.target.value)}
+              name="street_id"
+              value={streetId}
+              onChange={(e) => setStreetId(e.target.value)}
               required
               errors={errors.street}
-            />
-            <FloatingLabelInput
-              label="Subdivision"
-              type="text"
-              name="subdivision"
-              value={subdivision}
-              onChange={(e) => setSubdivision(e.target.value)}
-              errors={errors.subdivision}
-            />
-            <FloatingLabelInput
+            >
+              {loadingStreets ? (
+                <option value="">Loading Streets...</option>
+              ) : (
+                <>
+                  <option value="">Select Street</option>
+                  {streets.map((streetOpt) => (
+                    <option
+                      key={streetOpt.street_id}
+                      value={streetOpt.street_id}
+                    >
+                      {streetOpt.street}
+                    </option>
+                  ))}
+                </>
+              )}
+            </FloatingLabelSelect>
+            <FloatingLabelSelect
               label="Barangay"
-              type="text"
-              name="barangay"
-              value={barangay}
-              onChange={(e) => setBarangay(e.target.value)}
+              name="barangay_id"
+              value={barangayId}
+              onChange={(e) => setBarangayId(e.target.value)}
               required
               errors={errors.barangay}
-            />
-            <FloatingLabelInput
-              label="City / Municipality"
-              type="text"
-              name="city"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
+            >
+              {loadingBarangays ? (
+                <option value="">Loading Barangays...</option>
+              ) : (
+                <>
+                  <option value="">Select Barangay</option>
+                  {barangays.map((barangayOpt) => (
+                    <option
+                      key={barangayOpt.barangay_id}
+                      value={barangayOpt.barangay_id}
+                    >
+                      {barangayOpt.barangay}
+                    </option>
+                  ))}
+                </>
+              )}
+            </FloatingLabelSelect>
+            <FloatingLabelSelect
+              label="City"
+              name="city_id"
+              value={cityId}
+              onChange={(e) => setCityId(e.target.value)}
               required
               errors={errors.city}
-            />
+            >
+              {loadingCities ? (
+                <option value="">Loading Cities...</option>
+              ) : (
+                <>
+                  <option value="">Select City</option>
+                  {cities.map((cityOpt) => (
+                    <option key={cityOpt.city_id} value={cityOpt.city_id}>
+                      {cityOpt.city}
+                    </option>
+                  ))}
+                </>
+              )}
+            </FloatingLabelSelect>
           </div>
         </div>
         {/* Section: Crisis Information */}
@@ -458,28 +628,13 @@ const AddApplicantFormModal: FC<AddApplicantFormModalProps> = ({
           <h2 className="text-2xl font-bold text-blue-800 mb-6 border-b pb-3 border-blue-100">
             📎 Attached File
           </h2>
-          <div className="flex items-center space-x-4 mb-4">
-            <input
-              type="file"
-              id="attachedFile"
-              name="add_applicant_file"
-              onChange={(e) =>
-                setAttachedFile(e.target.files ? e.target.files[0] : null)
-              }
-              className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-500 file:text-white hover:file:bg-blue-600 shadow-sm"
-            />
-            {attachedFile && (
-              <span className="text-gray-700">{attachedFile.name}</span>
-            )}
-          </div>
-          {errors.attached_file && (
-            <p className="mt-2 text-sm text-red-600">
-              {errors.attached_file[0]}
-            </p>
-          )}
-          <p className="text-sm text-gray-600">
-            NOTE: Please upload files in JPEG or PDF format only
-          </p>
+          <UploadFileInput
+            label="Upload File"
+            name="add_applicant_file"
+            value={attachedFile}
+            onChange={(file) => setAttachedFile(file)}
+            errors={errors.attached_file}
+          />
         </div>
         {/* Section: Declaration and Consent */}
         <div className="border border-gray-200 rounded-lg p-6 bg-gray-50 shadow-sm transition-all duration-300 hover:shadow-md mb-8">

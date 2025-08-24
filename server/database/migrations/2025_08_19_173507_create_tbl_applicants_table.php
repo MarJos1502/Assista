@@ -26,11 +26,10 @@ return new class extends Migration
             // Contact Information
             $table->string('contact_number', 20);
             $table->string('gmail', 255)->unique(); // Gmail unique as per controller validation
-            $table->string('house_no', 100);
-            $table->string('street', 100);
-            $table->string('subdivision', 100)->nullable();
-            $table->string('barangay', 100);
-            $table->string('city', 100);
+            $table->unsignedBigInteger('house_id');
+            $table->unsignedBigInteger('street_id');
+            $table->unsignedBigInteger('barangay_id');
+            $table->unsignedBigInteger('city_id');
 
             // Crisis Details - Foreign Keys
             $table->unsignedBigInteger('crisis_id');
@@ -46,9 +45,33 @@ return new class extends Migration
             $table->timestamps(); // Adds created_at and updated_at columns
 
             // Foreign Key Constraints
-            $table->foreign('gender_id')
+             $table->foreign('gender_id')
                 ->references('gender_id')
                 ->on('tbl_genders') // Assumes 'tbl_genders' table exists with 'gender_id' primary key
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
+
+            $table->foreign('city_id')
+                ->references('city_id')
+                ->on('tbl_citys') // Assumes 'tbl_genders' table exists with 'gender_id' primary key
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
+
+             $table->foreign('barangay_id')
+                ->references('barangay_id')
+                ->on('tbl_barangays') // Assumes 'tbl_genders' table exists with 'gender_id' primary key
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
+            
+            $table->foreign('street_id')
+                ->references('street_id')
+                ->on('tbl_streets') // Assumes 'tbl_genders' table exists with 'gender_id' primary key
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
+
+             $table->foreign('house_id')
+                ->references('house_id')
+                ->on('tbl_houses') // Assumes 'tbl_genders' table exists with 'gender_id' primary key
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
 

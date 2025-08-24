@@ -6,9 +6,17 @@ import type {
 import type { GenderColumns } from "../../../interfaces/GenderInterface";
 import type { CrisisColumns } from "../../../interfaces/CrisisInterface";
 import type { SituationColumns } from "../../../interfaces/SituationInterface";
+import type { HouseColumns } from "../../../interfaces/HouseInterface";
+import type { StreetColumns } from "../../../interfaces/StreetInterface";
+import type { BarangayColumns } from "../../../interfaces/BarangayInterface";
+import type { CityColumns } from "../../../interfaces/CityInterface";
 import GenderService from "../../../services/GenderService";
 import crisisService from "../../../services/CrisisService";
 import SituationService from "../../../services/SituationService";
+import HouseService from "../../../services/HouseService";
+import StreetService from "../../../services/StreetService";
+import BarangayService from "../../../services/BarangayService";
+import CityService from "../../../services/CityService";
 import ApplicantService from "../../../services/ApplicantService";
 import Modal from "../../../components/Modal";
 import FloatingLabelInput from "../../../components/Input/FloatingLabelInput";
@@ -45,11 +53,21 @@ const EditApplicantFormModal: FC<EditApplicantFormModalProps> = ({
   // State for Contact Information
   const [contactNumber, setContactNumber] = useState("");
   const [gmail, setGmail] = useState("");
-  const [houseNo, setHouseNo] = useState("");
-  const [street, setStreet] = useState("");
-  const [subdivision, setSubdivision] = useState("");
-  const [barangay, setBarangay] = useState("");
-  const [city, setCity] = useState("");
+  const [houseId, setHouseId] = useState("");
+  const [houses, setHouses] = useState<HouseColumns[]>([]);
+  const [loadingHouses, setLoadingHouses] = useState(false);
+
+  const [streetId, setStreetId] = useState("");
+  const [streets, setStreets] = useState<StreetColumns[]>([]);
+  const [loadingStreets, setLoadingStreets] = useState(false);
+
+  const [barangayId, setBarangayId] = useState("");
+  const [barangays, setBarangays] = useState<BarangayColumns[]>([]);
+  const [loadingBarangays, setLoadingBarangays] = useState(false);
+
+  const [cityId, setCityId] = useState("");
+  const [cities, setCities] = useState<CityColumns[]>([]);
+  const [loadingCities, setLoadingCities] = useState(false);
 
   // State for Crisis Information
   const [crisisId, setCrisisId] = useState("");
@@ -59,7 +77,6 @@ const EditApplicantFormModal: FC<EditApplicantFormModalProps> = ({
   const [situationId, setSituationId] = useState("");
   const [situations, setSituations] = useState<SituationColumns[]>([]);
   const [loadingSituations, setLoadingSituations] = useState(false);
-
   // State for Attached File (for editing)
   const [existingAttachedFileUrl, setExistingAttachedFileUrl] = useState<
     string | null
@@ -117,12 +134,72 @@ const EditApplicantFormModal: FC<EditApplicantFormModalProps> = ({
     }
   };
 
+  const handleLoadHouses = async () => {
+    try {
+      setLoadingHouses(true);
+      const res = await HouseService.loadHouses();
+      if (res.status === 200) {
+        setHouses(res.data.houses);
+      }
+    } catch (error) {
+      console.error("Error loading houses:", error);
+    } finally {
+      setLoadingHouses(false);
+    }
+  };
+
+  const handleLoadStreets = async () => {
+    try {
+      setLoadingStreets(true);
+      const res = await StreetService.loadStreets();
+      if (res.status === 200) {
+        setStreets(res.data.streets);
+      }
+    } catch (error) {
+      console.error("Error loading streets:", error);
+    } finally {
+      setLoadingStreets(false);
+    }
+  };
+
+  const handleLoadBarangays = async () => {
+    try {
+      setLoadingBarangays(true);
+      const res = await BarangayService.loadBarangays();
+      if (res.status === 200) {
+        setBarangays(res.data.barangays);
+      }
+    } catch (error) {
+      console.error("Error loading barangays:", error);
+    } finally {
+      setLoadingBarangays(false);
+    }
+  };
+
+  const handleLoadCities = async () => {
+    try {
+      setLoadingCities(true);
+      const res = await CityService.loadCitys();
+      if (res.status === 200) {
+        setCities(res.data.citys);
+      }
+    } catch (error) {
+      console.error("Error loading cities:", error);
+    } finally {
+      setLoadingCities(false);
+    }
+  };
+
   // Effect to load dropdown data when modal opens
   useEffect(() => {
     if (isOpen) {
       handleLoadGenders();
       handleLoadCrisiss();
       handleLoadSituations();
+      handleLoadHouses();
+      handleLoadStreets();
+      handleLoadBarangays();
+      handleLoadCities();
       setErrors({}); // Clear errors on open
       setSubmissionMessage(null); // Clear submission messages on open
     }
@@ -142,11 +219,18 @@ const EditApplicantFormModal: FC<EditApplicantFormModalProps> = ({
 
       setContactNumber(applicant.contact_number || "");
       setGmail(applicant.gmail || "");
-      setHouseNo(applicant.house_no || "");
-      setStreet(applicant.street || "");
-      setSubdivision(applicant.subdivision || "");
-      setBarangay(applicant.barangay || "");
-      setCity(applicant.city || "");
+      setHouseId(
+        applicant.house?.house_id ? String(applicant.house.house_id) : ""
+      ); // Convert to string
+      setStreetId(
+        applicant.street?.street_id ? String(applicant.street.street_id) : ""
+      ); // Convert to string
+      setBarangayId(
+        applicant.barangay?.barangay_id
+          ? String(applicant.barangay.barangay_id)
+          : ""
+      ); // Convert to string
+      setCityId(applicant.city?.city_id ? String(applicant.city.city_id) : ""); // Convert to string
 
       setCrisisId(applicant.crisis ? String(applicant.crisis.crisis_id) : "");
       setIncidentDate(
@@ -171,11 +255,10 @@ const EditApplicantFormModal: FC<EditApplicantFormModalProps> = ({
       setBirthDate("");
       setContactNumber("");
       setGmail("");
-      setHouseNo("");
-      setStreet("");
-      setSubdivision("");
-      setBarangay("");
-      setCity("");
+      setHouseId(""); // Reset houseId
+      setStreetId(""); // Reset streetId
+      setBarangayId(""); // Reset barangayId
+      setCityId(""); // Reset cityId
       setCrisisId("");
       setIncidentDate("");
       setSituationId("");
@@ -232,11 +315,10 @@ const EditApplicantFormModal: FC<EditApplicantFormModalProps> = ({
       // Contact Information
       formData.append("contact_number", contactNumber);
       formData.append("gmail", gmail);
-      formData.append("house_no", houseNo);
-      formData.append("street", street);
-      formData.append("subdivision", subdivision || "");
-      formData.append("barangay", barangay);
-      formData.append("city", city);
+      formData.append("house_id", houseId); // Use house_id
+      formData.append("street_id", streetId); // Use street_id
+      formData.append("barangay_id", barangayId); // Use barangay_id
+      formData.append("city_id", cityId); // Use city_id
 
       // Crisis Details
       formData.append("crisis_id", crisisId); // Use crisis_id
@@ -275,11 +357,26 @@ const EditApplicantFormModal: FC<EditApplicantFormModalProps> = ({
         setBirthDate(updatedApplicantData.birth_date);
         setContactNumber(updatedApplicantData.contact_number);
         setGmail(updatedApplicantData.gmail);
-        setHouseNo(updatedApplicantData.house_no);
-        setStreet(updatedApplicantData.street);
-        setSubdivision(updatedApplicantData.subdivision ?? "");
-        setBarangay(updatedApplicantData.barangay);
-        setCity(updatedApplicantData.city);
+        setHouseId(
+          updatedApplicantData.house?.house_id
+            ? String(updatedApplicantData.house.house_id)
+            : ""
+        ); // Convert to string
+        setStreetId(
+          updatedApplicantData.street?.street_id
+            ? String(updatedApplicantData.street.street_id)
+            : ""
+        ); // Convert to string
+        setBarangayId(
+          updatedApplicantData.barangay?.barangay_id
+            ? String(updatedApplicantData.barangay.barangay_id)
+            : ""
+        ); // Convert to string
+        setCityId(
+          updatedApplicantData.city?.city_id
+            ? String(updatedApplicantData.city.city_id)
+            : ""
+        ); // Convert to string
         setCrisisId(String(updatedApplicantData.crisis_id));
         setIncidentDate(updatedApplicantData.incident_date);
         setSituationId(String(updatedApplicantData.situation_id));
@@ -421,50 +518,96 @@ const EditApplicantFormModal: FC<EditApplicantFormModalProps> = ({
               required
               errors={errors.gmail}
             />
-            <FloatingLabelInput
-              label="House No. / Lot / Block"
-              type="text"
-              name="house_no"
-              value={houseNo}
-              onChange={(e) => setHouseNo(e.target.value)}
+            <FloatingLabelSelect
+              label="House"
+              name="house_id"
+              value={houseId}
+              onChange={(e) => setHouseId(e.target.value)}
               required
-              errors={errors.house_no}
-            />
-            <FloatingLabelInput
+              errors={errors.house}
+            >
+              {loadingHouses ? (
+                <option value="">Loading Houses...</option>
+              ) : (
+                <>
+                  <option value="">Select House</option>
+                  {houses.map((houseOpt) => (
+                    <option key={houseOpt.house_id} value={houseOpt.house_id}>
+                      {houseOpt.house}
+                    </option>
+                  ))}
+                </>
+              )}
+            </FloatingLabelSelect>
+            <FloatingLabelSelect
               label="Street"
-              type="text"
-              name="street"
-              value={street}
-              onChange={(e) => setStreet(e.target.value)}
+              name="street_id"
+              value={streetId}
+              onChange={(e) => setStreetId(e.target.value)}
               required
               errors={errors.street}
-            />
-            <FloatingLabelInput
-              label="Subdivision"
-              type="text"
-              name="subdivision"
-              value={subdivision}
-              onChange={(e) => setSubdivision(e.target.value)}
-              errors={errors.subdivision}
-            />
-            <FloatingLabelInput
+            >
+              {loadingStreets ? (
+                <option value="">Loading Streets...</option>
+              ) : (
+                <>
+                  <option value="">Select Street</option>
+                  {streets.map((streetOpt) => (
+                    <option
+                      key={streetOpt.street_id}
+                      value={streetOpt.street_id}
+                    >
+                      {streetOpt.street}
+                    </option>
+                  ))}
+                </>
+              )}
+            </FloatingLabelSelect>
+            <FloatingLabelSelect
               label="Barangay"
-              type="text"
-              name="barangay"
-              value={barangay}
-              onChange={(e) => setBarangay(e.target.value)}
+              name="barangay_id"
+              value={barangayId}
+              onChange={(e) => setBarangayId(e.target.value)}
               required
               errors={errors.barangay}
-            />
-            <FloatingLabelInput
-              label="City / Municipality"
-              type="text"
-              name="city"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
+            >
+              {loadingBarangays ? (
+                <option value="">Loading Barangays...</option>
+              ) : (
+                <>
+                  <option value="">Select Barangay</option>
+                  {barangays.map((barangayOpt) => (
+                    <option
+                      key={barangayOpt.barangay_id}
+                      value={barangayOpt.barangay_id}
+                    >
+                      {barangayOpt.barangay}
+                    </option>
+                  ))}
+                </>
+              )}
+            </FloatingLabelSelect>
+            <FloatingLabelSelect
+              label="City"
+              name="city_id"
+              value={cityId}
+              onChange={(e) => setCityId(e.target.value)}
               required
               errors={errors.city}
-            />
+            >
+              {loadingCities ? (
+                <option value="">Loading Cities...</option>
+              ) : (
+                <>
+                  <option value="">Select City</option>
+                  {cities.map((cityOpt) => (
+                    <option key={cityOpt.city_id} value={cityOpt.city_id}>
+                      {cityOpt.city}
+                    </option>
+                  ))}
+                </>
+              )}
+            </FloatingLabelSelect>
           </div>
         </div>
         {/* Section: Crisis Information */}
