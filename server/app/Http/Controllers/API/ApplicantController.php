@@ -46,12 +46,12 @@ class ApplicantController extends Controller
         // Transform collection to add full URLs for attached_file
         $applicants->getCollection()->transform(function ($applicant) {
             // Check if attached_file exists and append full URL
-            $applicant->attached_file_url = $applicant->attached_file ? 
-                                            url('storage/img/applicant/files/' . $applicant->attached_file) : null;
+            $applicant->attached_file_url = $applicant->attached_file ?
+                                            url('/api/applicant/file/' . $applicant->attached_file) : null;
 
             // Remove raw attached_file name if you only want URLs in the response
             unset($applicant->attached_file);
-            
+
             return $applicant;
         });
 
@@ -180,7 +180,7 @@ class ApplicantController extends Controller
         $age = date_diff(date_create($validated['birth_date']), date_create('now'))->y;
 
         $applicant->update([
-            'attached_file' => $validated['attached_file'],
+            'attached_file' => $attachedFileFilenameToStore,
             'first_name' => $validated['first_name'],
             'middle_name' => $validated['middle_name'],
             'last_name' => $validated['last_name'],
@@ -201,7 +201,7 @@ class ApplicantController extends Controller
 
         // Transform the applicant object for the response, adding full URLs
         $applicant->attached_file_url = $applicant->attached_file ? 
-                                        url('storage/img/applicant/files/' . $applicant->attached_file) : null;
+                                        url('/api/applicant/file/' . $applicant->attached_file) : null;
         
         // Remove raw filenames if you prefer only URLs in the response
         unset($applicant->attached_file);
@@ -255,11 +255,28 @@ class ApplicantController extends Controller
             ],
             'attached_file' => $applicant->attached_file,
             'attached_file_url' => $applicant->attached_file ? 
-                url('storage/img/applicant/files/' . $applicant->attached_file) : null
+                url('/api/applicant/file/' . $applicant->attached_file) : null
         ];
         
         return response()->json([
             'applicant' => $applicantData
         ], 200);
+    }
+
+    public function serveFile($filename)
+    {
+        $path = storage_path('app/private/public/img/applicant/files/' . $filename);
+        
+        if (!file_exists($path)) {
+            abort(404, 'File not found');
+        }
+        
+        // Verify file belongs to an applicant (security check)
+        $applicant = Applicant::where('attached_file', $filename)->where('is_deleted', false)->first();
+        if (!$applicant) {
+            abort(403, 'Unauthorized access');
+        }
+        
+        return response()->file($path);
     }
 }

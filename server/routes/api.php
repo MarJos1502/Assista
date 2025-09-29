@@ -15,7 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(AuthController::class)->prefix('/auth')->group(function () {
-    Route::post('login', 'login');
+    Route::post('login', 'login')->name('login');
 });
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -90,6 +90,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/destroyApplicant/{applicant}', 'destroyApplicant');
     });
 
+    // File serving route - public but secured by filename check
+    Route::get('/applicant/file/{filename}', [ApplicantController::class, 'serveFile'])->where('filename', '.*');
+
     Route::controller(UserController::class)->prefix('/user')->group(function () {
         Route::get('/loadUsers', 'loadUsers');
         Route::get('/getUser/{user}', 'getUser');
@@ -98,6 +101,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/destroyUser/{user}', 'destroyUser');
     });
 
+// File serving route - public but secured by filename check
+Route::get('/applicant/file/{filename}', [ApplicantController::class, 'serveFile'])->where('filename', '.*');
+
     Route::controller(DashboardController::class)->prefix('/statistics')->group(function () {
         Route::get('/test', 'test');
         Route::get('/dashboard', 'dashboard');
@@ -105,6 +111,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/applicant', 'applicant');
     });
 });
+
+// File serving route - public but secured by filename check
+Route::get('/applicant/file/{filename}', [ApplicantController::class, 'serveFile'])->where('filename', '.*');
+
+// Public route for applicant registration
+Route::post('/public/applicant/store', [ApplicantController::class, 'storeApplicant']);
 
 
 // Test route to check if API is working
